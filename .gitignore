@@ -27,7 +27,6 @@ dist/*
 *.sublime*
 .DS_Store
 *puf.csv
-*/OUTPUT/*
 */__pycache__/*
 *.dta
 *.dat
