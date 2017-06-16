@@ -449,9 +449,9 @@ def get_TPI(params, bmat1, graphs):
         print(
             'TPI iter: ', iter_TPI, ', dist: ', "%10.4e" % (dist),
             ', max abs all errs: ', "%10.4e" %
-            (np.hstack(np.absolute(b_err_path).max(),
+            (np.hstack((np.absolute(b_err_path).max(),
              np.absolute(n_err_path).max(),
-             np.absolute(bSp1_err_path).max())).max())
+             np.absolute(bSp1_err_path).max()))).max())
         # The resource constraint does not bind across the transition
         # path until the equilibrium is solved
         Kpath_init = xi * Kpath_new + (1 - xi) * Kpath_init

@@ -91,7 +91,7 @@ TPI_EulDiff   = Boolean, =True if want difference version of Euler
 '''
 # Household parameters
 S = int(20)
-lambdas = np.array([0.40, 0.35, 0.25])
+lambdas = np.array([0.4, 0.3, 0.2, 0.1])
 # Make sure that lambdas vector sums to 1.0
 if not np.isclose(1.0, lambdas.sum()):
     err_msg = ('ERROR: lambdas vector does not sum to one.')
@@ -115,7 +115,7 @@ alpha = 0.35
 delta_annual = 0.05
 delta = 1 - ((1 - delta_annual) ** (80 / S))
 # SS parameters
-SS_solve = False
+SS_solve = True
 SS_tol = 1e-13
 SS_graphs = True
 SS_EulDiff = True
