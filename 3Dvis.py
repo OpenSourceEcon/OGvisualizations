@@ -22,14 +22,14 @@ OPTIONS =
   showGrid: true
   keepAspectRatio: false
   verticalRatio: 1.0
-  legendLabel: 'individual savings'
+  showLegend: true
   cameraPosition:
     horizontal: -0.35
     vertical: 0.22
     distance: 1.8
   xLabel: 'age-s'
   yLabel: 'ability-j'
-  zLabel: 'indiv. savings $b_{j,s}$'
+  zLabel: 'indiv. savings-b'
 
 # To create custom model extensions that will render on to the HTML canvas
 # or into the DOM, we must create a View subclass for the model. Currently
@@ -189,9 +189,12 @@ callback = CustomJS(args=dict(source=source), code="""
     source.change.emit();
 """)
 
-time_slider = Slider(start=0, end=89, value=0, step=1, title='Time period',
+time_slider = Slider(start=0, end=88, value=0, step=1, title='Time period',
                      callback=callback)
 callback.args['time'] = time_slider
+
+# Line graph for Kpath
+
 
 layout = row(
     surface,
