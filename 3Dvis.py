@@ -5,7 +5,8 @@ import pickle
 
 from bokeh.core.properties import Instance, String
 from bokeh.models import ColumnDataSource, LayoutDOM, CustomJS, Slider
-from bokeh.layouts import row, widgetbox
+from bokeh.layouts import layout, widgetbox
+from bokeh.plotting import figure
 from bokeh.io import show
 
 JS_CODE = """
@@ -15,8 +16,8 @@ import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 # This defines some default options for the Graph3d feature of vis.js
 # See: http://visjs.org/graph3d_examples.html for more details.
 OPTIONS =
-  width:  '600px'
-  height: '600px'
+  width:  '450px'
+  height: '450px'
   style: 'surface'
   showPerspective: true
   showGrid: true
@@ -82,7 +83,6 @@ export class Surface3dView extends LayoutDOMView
         z:     source.get_column(@model.z)[i]
         style: source.get_column(@model.color)[i]
       })
-    console.log(source.get_column(@model.z))
     return data
 
 # We must also create a corresponding JavaScript Backbone model sublcass to
@@ -149,9 +149,11 @@ class Surface3d(LayoutDOM):
     color = String
 
 
+# read in data
 tpi_args = pickle.load(open('HeteroAbil/OUTPUT/TPI/tpi_args.pkl', 'rb'))
 tpi_vars = pickle.load(open('HeteroAbil/OUTPUT/TPI/tpi_vars.pkl', 'rb'))
 
+# 3D plot
 S = tpi_args[1]
 lambdas = tpi_args[4]
 
@@ -165,13 +167,32 @@ value = tpi_vars['bpath'].T[0]
 value = value.ravel()
 bpath = tpi_vars['bpath'].T.ravel()
 
-source = ColumnDataSource(data=dict(bpath=bpath, x=smat, y=jmat, z=value,
+source = ColumnDataSource(data=dict(x=smat, y=jmat, z=value,
                           color=value))
+bpath_source = ColumnDataSource(data=dict(bpath=bpath))
 
 surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source)
 
-callback = CustomJS(args=dict(source=source), code="""
+# Line graph for Kpath
+kpath = tpi_vars['Kpath']
+time = range(89)
+circle_color = ['blue'] + ['white']*88
+kplot_source = ColumnDataSource(data=dict(x=time, y=kpath,
+                                circle_color=circle_color))
+
+kplot = figure(title='Time path for aggregate capital stock K', plot_width=500,
+               plot_height=300)
+kplot.xaxis.axis_label = 'Period t'
+kplot.yaxis.axis_label = 'Aggregate capital K'
+kplot.line('x', 'y', line_width=2, source=kplot_source)
+kplot.circle('x', 'y', fill_color='circle_color', size=8, source=kplot_source)
+
+# callback for both graphs
+callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
+                    kplot_source=kplot_source), code="""
     var data = source.data;
+    var bdata = bpath_source.data;
+    var kdata = kplot_source.data;
     var time = time.value;
     x = data['x'];
     y = data['y'];
@@ -179,26 +200,28 @@ callback = CustomJS(args=dict(source=source), code="""
 
     beg = time*80;
     end = (time+1)*80;
-    b = data['bpath'].slice(beg,end);
+    b = bdata['bpath'].slice(beg,end);
 
     for (i = 0; i < z.length; i++) {
-            console.log(i)
             z[i] = b[i];
-        }
+    }
+
+    kdata['circle_color'] = Array(89).fill('white');
+    kdata['circle_color'][time] = 'blue';
 
     source.change.emit();
+    kplot_source.change.emit();
 """)
 
+# time slider
 time_slider = Slider(start=0, end=88, value=0, step=1, title='Time period',
                      callback=callback)
 callback.args['time'] = time_slider
 
-# Line graph for Kpath
-
-
-layout = row(
-    surface,
-    widgetbox(time_slider),
-)
+layout = layout([
+    [surface],
+    [kplot],
+    [widgetbox(time_slider)],
+    ])
 
 show(layout)
