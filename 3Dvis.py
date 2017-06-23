@@ -31,6 +31,8 @@ OPTIONS =
   xLabel: 'age-s'
   yLabel: 'ability-j'
   zLabel: 'indiv. savings-b'
+  zMax: 4
+  zMin: -1
 
 # To create custom model extensions that will render on to the HTML canvas
 # or into the DOM, we must create a View subclass for the model. Currently
