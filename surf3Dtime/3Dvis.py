@@ -6,6 +6,7 @@ import pickle
 from bokeh.core.properties import Instance, String
 from bokeh.models import ColumnDataSource, LayoutDOM, CustomJS, Slider
 from bokeh.layouts import layout, widgetbox, gridplot
+from bokeh.models.widgets import RadioButtonGroup
 from bokeh.plotting import figure
 from bokeh.io import show
 
@@ -97,7 +98,7 @@ class Surface3d(LayoutDOM):
 # read in data
 tpi_args = pickle.load(open('HeteroAbil/OUTPUT/TPI/tpi_args.pkl', 'rb'))
 tpi_vars = pickle.load(open('HeteroAbil/OUTPUT/TPI/tpi_vars.pkl', 'rb'))
-ss_vars = pickle.load(open('HeteroAbil/OUTPUT/SS/ss_vars.pkl', 'rb'))
+# ss_vars = pickle.load(open('HeteroAbil/OUTPUT/SS/ss_vars.pkl', 'rb'))
 
 # 3D plot for bpath
 S = tpi_args[1]
@@ -118,6 +119,35 @@ source = ColumnDataSource(data=dict(x=smat, y=jmat, z=value,
 bpath_source = ColumnDataSource(data=dict(bpath=bpath_ravel))
 
 surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source)
+
+# radio buttons and callback for 3D surfaces
+surface_callback = CustomJS(args=dict(source=source), code="""
+    var data = source.data;
+    var time = time.value;
+    x = data['x'];
+    y = data['y'];
+    z = data['z'];
+
+    beg = time*80;
+    end = (time+1)*80;
+    b = bdata['bpath'].slice(beg,end);
+
+    for (i = 0; i < z.length; i++) {
+            z[i] = b[i];
+    }
+
+    kdata['circle_color'] = Array(69).fill('white');
+    kdata['circle_color'][time] = 'blue';
+
+    ldata['circle_color']= Array(69).fill('white');
+    ldata['circle_color'][time] = 'blue';
+
+    source.change.emit();
+    kplot_source.change.emit();
+    lplot_source.change.emit();
+""")
+surface_radio_group = RadioButtonGroup(labels=["C", "N", "B"], active=0,
+                                       callback=surface_callback)
 
 # line graph for Kpath
 kpath = tpi_vars['Kpath'][:69]
@@ -145,23 +175,24 @@ lplot.yaxis.axis_label = 'Aggregate labor L'
 lplot.line('x', 'y', line_width=2, source=lplot_source)
 lplot.circle('x', 'y', fill_color='circle_color', size=8, source=lplot_source)
 
-# 2D plot for bpath
-bpath = ss_vars['bpath']
-# try ss output for b_ss
-import pdb;pdb.set_trace()
-bplot_source = ColumnDataSource(data=dict(x=sgrid, y=bpath))
-bplot = figure(title='Individual Savings by Age', plot_width=500,
-               plot_height=300)
-bplot.xaxis.axis_label = 'age-s'
-bplot.yaxis.axis_label = 'indiv. savings-b'
-bplot.line('x', 'y', line_width=2, line_dash='dashed', source=bplot_source)
-#bplot.line()
-#bplot.line()
+# # 2D plot for bpath
+# bpath = tpi_vars['bpath'].T.ravel()
+# # try ss output for b_ss
+# # import pdb;pdb.set_trace()
+# bplot_source_1 = ColumnDataSource(data=dict(x=sgrid, y=bpath[:20]))
+# bplot_source_1 = ColumnDataSource(data=dict(x=sgrid, y=bpath[20:20]))
+# bplot = figure(title='Individual Savings by Age', plot_width=500,
+#                plot_height=300)
+# bplot.xaxis.axis_label = 'age-s'
+# bplot.yaxis.axis_label = 'indiv. savings-b'
+# bplot.line('x', 'y', line_width=2, line_dash='dashed', source=bplot_source)
+# #bplot.line()
+# #bplot.line()
 
 # callback for both graphs
-callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
-                    kplot_source=kplot_source, lplot_source=lplot_source),
-                    code="""
+slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
+                           kplot_source=kplot_source, lplot_source=lplot_source),
+                           code="""
     var data = source.data;
     var bdata = bpath_source.data;
     var kdata = kplot_source.data;
@@ -192,17 +223,12 @@ callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
 
 # time slider
 time_slider = Slider(start=0, end=68, value=0, step=1, title='Time period',
-                     callback=callback)
-callback.args['time'] = time_slider
-
-# layout = layout([
-#     [surface],
-#     [kplot, lplot],
-#     [widgetbox(time_slider)],
-#     ])
+                     callback=slider_callback)
+slider_callback.args['time'] = time_slider
 
 layout = gridplot(
-    children=[[surface], [kplot, lplot], [bplot], [widgetbox(time_slider)]],
+    children=[[surface], [widgetbox(surface_radio_group)],
+              [kplot, lplot], [widgetbox(time_slider)]],
     toolbar_location='right',
     # sizing_mode='stretch_both',
     toolbar_options=dict(logo='grey'),
