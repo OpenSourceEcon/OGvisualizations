@@ -32,8 +32,6 @@ OPTIONS =
   xLabel: 'age-s'
   yLabel: 'ability-j'
   zLabel: 'indiv. savings-b'
-  zMax: 4
-  zMin: -1
   tooltip: false
 
 export class Surface3dView extends LayoutDOMView
@@ -110,44 +108,83 @@ jmidgrid = 0.5 * lamcumsum + 0.5 * (lamcumsum - lambdas)
 smat, jmat = np.meshgrid(sgrid, jmidgrid)
 smat = smat.ravel()
 jmat = jmat.ravel()
-value = tpi_vars['bpath'].T[0]
-value = value.ravel()
+
+bvalue = tpi_vars['bpath'].T[0]
+bvalue = bvalue.ravel()
 bpath_ravel = tpi_vars['bpath'].T.ravel()
 
-source = ColumnDataSource(data=dict(x=smat, y=jmat, z=value,
-                          color=value))
+cvalue = tpi_vars['cpath'].T[0]
+cvalue = cvalue.ravel()
+cpath_ravel = tpi_vars['cpath'].T.ravel()
+
+nvalue = tpi_vars['npath'].T[0]
+nvalue = nvalue.ravel()
+npath_ravel = tpi_vars['npath'].T.ravel()
+
+source = ColumnDataSource(data=dict(x=smat, y=jmat, z=bvalue, color=bvalue))
+bsource = ColumnDataSource(data=dict(x=smat, y=jmat, z=bvalue, color=bvalue))
+csource = ColumnDataSource(data=dict(x=smat, y=jmat, z=cvalue, color=cvalue))
+nsource = ColumnDataSource(data=dict(x=smat, y=jmat, z=nvalue, color=nvalue))
+
 bpath_source = ColumnDataSource(data=dict(bpath=bpath_ravel))
+cpath_source = ColumnDataSource(data=dict(cpath=cpath_ravel))
+npath_source = ColumnDataSource(data=dict(npath=npath_ravel))
 
 surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source)
 
 # radio buttons and callback for 3D surfaces
-surface_callback = CustomJS(args=dict(source=source), code="""
-    var data = source.data;
-    var time = time.value;
-    x = data['x'];
-    y = data['y'];
-    z = data['z'];
+surface_callback = CustomJS(args=dict(source=source, bsource=bsource,
+                            csource=csource, nsource=nsource), code="""
+    var button = surface_radio_group.active;
 
-    beg = time*80;
-    end = (time+1)*80;
-    b = bdata['bpath'].slice(beg,end);
+    if (button == '0') {
+        var source_data = source.data;
+        var data = bsource.data;
+        var bdata = data['z'];
 
-    for (i = 0; i < z.length; i++) {
-            z[i] = b[i];
+        x = source_data['x'];
+        y = source_data['y'];
+        z = source_data['z'];
+
+        for (i = 0; i < z.length; i++) {
+                z[i] = bdata[i];
+        }
+        source.change.emit();
     }
 
-    kdata['circle_color'] = Array(69).fill('white');
-    kdata['circle_color'][time] = 'blue';
+    if (button == '1') {
+        var source_data = source.data;
+        var data = csource.data;
+        var cdata = data['z'];
 
-    ldata['circle_color']= Array(69).fill('white');
-    ldata['circle_color'][time] = 'blue';
+        x = source_data['x'];
+        y = source_data['y'];
+        z = source_data['z'];
 
-    source.change.emit();
-    kplot_source.change.emit();
-    lplot_source.change.emit();
+        for (i = 0; i < z.length; i++) {
+                z[i] = cdata[i];
+        }
+        source.change.emit();
+    }
+
+    if (button == '2') {
+        var source_data = source.data;
+        var data = nsource.data;
+        var ndata = data['z']
+
+        x = source_data['x'];
+        y = source_data['y'];
+        z = source_data['z'];
+
+        for (i = 0; i < z.length; i++) {
+                z[i] = ndata[i];
+        }
+        source.change.emit();
+    }
 """)
-surface_radio_group = RadioButtonGroup(labels=["C", "N", "B"], active=0,
+surface_radio_group = RadioButtonGroup(labels=['B', 'C', 'N'], active=0,
                                        callback=surface_callback)
+surface_callback.args['surface_radio_group'] = surface_radio_group
 
 # line graph for Kpath
 kpath = tpi_vars['Kpath'][:69]
@@ -163,17 +200,198 @@ kplot.yaxis.axis_label = 'Aggregate capital K'
 kplot.line('x', 'y', line_width=2, source=kplot_source)
 kplot.circle('x', 'y', fill_color='circle_color', size=8, source=kplot_source)
 
-# line graph for Lpath
-lpath = tpi_vars['Lpath'][:69]
-lplot_source = ColumnDataSource(data=dict(x=time, y=lpath,
+# the other path data for the other line plots
+rpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['rpath'][:69],
+                                circle_color=circle_color))
+wpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['wpath'][:69],
+                                circle_color=circle_color))
+kpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Kpath'][:69],
+                                circle_color=circle_color))
+lpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Lpath'][:69],
+                                circle_color=circle_color))
+ypath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Ypath'][:69],
+                                circle_color=circle_color))
+cpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Cpath'][:69],
                                 circle_color=circle_color))
 
-lplot = figure(title='Time path for aggregate labor L', plot_width=500,
-               plot_height=300)
-lplot.xaxis.axis_label = 'Period t'
-lplot.yaxis.axis_label = 'Aggregate labor L'
-lplot.line('x', 'y', line_width=2, source=lplot_source)
-lplot.circle('x', 'y', fill_color='circle_color', size=8, source=lplot_source)
+
+# radio buttons and callback for line graph
+line_callback = CustomJS(args=dict(kplot_source=kplot_source, rpath=rpath,
+                            wpath=wpath, kpath=kpath, lpath= lpath,
+                            ypath=ypath, cpath=cpath), code="""
+    var button = line_radio_group.active;
+
+    if (button == '0') {
+        var source = kplot_source.data;
+        var path_data = rpath.data;
+
+        x = source['x'];
+        y = source['y'];
+
+        for (i = 0; i < y.length; i++) {
+                y[i] = path_data['y'][i];
+        }
+        kplot_source.change.emit();
+    }
+
+    if (button == '1') {
+        var source = kplot_source.data;
+        var path_data = wpath.data;
+
+        x = source['x'];
+        y = source['y'];
+
+        for (i = 0; i < y.length; i++) {
+                y[i] = path_data['y'][i];
+        }
+        kplot_source.change.emit();
+    }
+
+    if (button == '2') {
+        var source = kplot_source.data;
+        var path_data = kpath.data;
+
+        x = source['x'];
+        y = source['y'];
+
+        for (i = 0; i < y.length; i++) {
+                y[i] = path_data['y'][i];
+        }
+        kplot_source.change.emit();
+    }
+
+    if (button == '3') {
+        var source = kplot_source.data;
+        var path_data = lpath.data;
+
+        x = source['x'];
+        y = source['y'];
+
+        for (i = 0; i < y.length; i++) {
+                y[i] = path_data['y'][i];
+        }
+        kplot_source.change.emit();
+    }
+
+    if (button == '4') {
+        var source = kplot_source.data;
+        var path_data = ypath.data;
+
+        x = source['x'];
+        y = source['y'];
+
+        for (i = 0; i < y.length; i++) {
+                y[i] = path_data['y'][i];
+        }
+        kplot_source.change.emit();
+    }
+
+    if (button == '5') {
+        var source = kplot_source.data;
+        var path_data = cpath.data;
+
+        x = source['x'];
+        y = source['y'];
+
+        for (i = 0; i < y.length; i++) {
+                y[i] = path_data['y'][i];
+        }
+        kplot_source.change.emit();
+    }
+""")
+
+line_radio_group = RadioButtonGroup(labels=['r', 'w', 'K', 'L', 'Y', 'C'],
+                                    active=2, callback=line_callback)
+line_callback.args['line_radio_group'] = line_radio_group
+
+def update_line_plot(attrname, old, new):
+    kplot.title = 'TEST TEST'
+
+line_radio_group.on_change('active', update_line_plot)
+
+
+# callback for both graphs
+slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
+                           cpath_source=cpath_source, npath_source=npath_source,
+                           kplot_source=kplot_source),
+                           code="""
+    var data = source.data;
+    var kdata = kplot_source.data;
+    var time = time.value;
+    var button = surface_radio_group.active;
+
+    if (button == '0') {
+        var bpath = bpath_source.data;
+
+        x = data['x'];
+        y = data['y'];
+        z = data['z'];
+
+        beg = time*80;
+        end = (time+1)*80;
+        b = bpath['bpath'].slice(beg,end);
+
+        for (i = 0; i < z.length; i++) {
+                z[i] = b[i];
+        }
+        source.change.emit();
+    }
+
+    if (button == '1') {
+        var cpath = cpath_source.data;
+
+        x = data['x'];
+        y = data['y'];
+        z = data['z'];
+
+        beg = time*80;
+        end = (time+1)*80;
+        c = cpath['cpath'].slice(beg,end);
+
+        for (i = 0; i < z.length; i++) {
+                z[i] = c[i];
+        }
+        source.change.emit();
+    }
+
+    if (button == '2') {
+        var npath = npath_source.data;
+
+        x = data['x'];
+        y = data['y'];
+        z = data['z'];
+
+        beg = time*80;
+        end = (time+1)*80;
+        n = npath['npath'].slice(beg,end);
+
+        for (i = 0; i < z.length; i++) {
+                z[i] = n[i];
+        }
+        source.change.emit();
+    }
+
+    kdata['circle_color'] = Array(69).fill('white');
+    kdata['circle_color'][time] = 'blue';
+
+    kplot_source.change.emit();
+""")
+
+# time slider
+time_slider = Slider(start=0, end=68, value=0, step=1, title='Time period',
+                     callback=slider_callback)
+slider_callback.args['time'] = time_slider
+slider_callback.args['surface_radio_group'] = surface_radio_group
+
+layout = gridplot(
+    children=[[surface], [widgetbox(surface_radio_group)],
+              [kplot, widgetbox(line_radio_group)], [widgetbox(time_slider)]],
+    toolbar_location='right',
+    # sizing_mode='stretch_both',
+    toolbar_options=dict(logo='grey'),
+)
+
+show(layout)
 
 # # 2D plot for bpath
 # bpath = tpi_vars['bpath'].T.ravel()
@@ -188,50 +406,3 @@ lplot.circle('x', 'y', fill_color='circle_color', size=8, source=lplot_source)
 # bplot.line('x', 'y', line_width=2, line_dash='dashed', source=bplot_source)
 # #bplot.line()
 # #bplot.line()
-
-# callback for both graphs
-slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
-                           kplot_source=kplot_source, lplot_source=lplot_source),
-                           code="""
-    var data = source.data;
-    var bdata = bpath_source.data;
-    var kdata = kplot_source.data;
-    var ldata = lplot_source.data;
-    var time = time.value;
-    x = data['x'];
-    y = data['y'];
-    z = data['z'];
-
-    beg = time*80;
-    end = (time+1)*80;
-    b = bdata['bpath'].slice(beg,end);
-
-    for (i = 0; i < z.length; i++) {
-            z[i] = b[i];
-    }
-
-    kdata['circle_color'] = Array(69).fill('white');
-    kdata['circle_color'][time] = 'blue';
-
-    ldata['circle_color']= Array(69).fill('white');
-    ldata['circle_color'][time] = 'blue';
-
-    source.change.emit();
-    kplot_source.change.emit();
-    lplot_source.change.emit();
-""")
-
-# time slider
-time_slider = Slider(start=0, end=68, value=0, step=1, title='Time period',
-                     callback=slider_callback)
-slider_callback.args['time'] = time_slider
-
-layout = gridplot(
-    children=[[surface], [widgetbox(surface_radio_group)],
-              [kplot, lplot], [widgetbox(time_slider)]],
-    toolbar_location='right',
-    # sizing_mode='stretch_both',
-    toolbar_options=dict(logo='grey'),
-)
-
-show(layout)
