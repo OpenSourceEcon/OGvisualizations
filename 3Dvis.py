@@ -5,7 +5,7 @@ import pickle
 
 from bokeh.core.properties import Instance, String
 from bokeh.models import ColumnDataSource, LayoutDOM, CustomJS, Slider
-from bokeh.layouts import layout, widgetbox
+from bokeh.layouts import layout, widgetbox, gridplot
 from bokeh.plotting import figure
 from bokeh.io import show
 
@@ -33,6 +33,7 @@ OPTIONS =
   zLabel: 'indiv. savings-b'
   zMax: 4
   zMin: -1
+  tooltip: false
 
 export class Surface3dView extends LayoutDOMView
 
@@ -96,8 +97,9 @@ class Surface3d(LayoutDOM):
 # read in data
 tpi_args = pickle.load(open('HeteroAbil/OUTPUT/TPI/tpi_args.pkl', 'rb'))
 tpi_vars = pickle.load(open('HeteroAbil/OUTPUT/TPI/tpi_vars.pkl', 'rb'))
+ss_vars = pickle.load(open('HeteroAbil/OUTPUT/SS/ss_vars.pkl', 'rb'))
 
-# 3D plot
+# 3D plot for bpath
 S = tpi_args[1]
 lambdas = tpi_args[4]
 
@@ -109,15 +111,15 @@ smat = smat.ravel()
 jmat = jmat.ravel()
 value = tpi_vars['bpath'].T[0]
 value = value.ravel()
-bpath = tpi_vars['bpath'].T.ravel()
+bpath_ravel = tpi_vars['bpath'].T.ravel()
 
 source = ColumnDataSource(data=dict(x=smat, y=jmat, z=value,
                           color=value))
-bpath_source = ColumnDataSource(data=dict(bpath=bpath))
+bpath_source = ColumnDataSource(data=dict(bpath=bpath_ravel))
 
 surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source)
 
-# Line graph for Kpath
+# line graph for Kpath
 kpath = tpi_vars['Kpath'][:69]
 time = range(69)
 circle_color = ['blue'] + ['white']*68
@@ -131,12 +133,39 @@ kplot.yaxis.axis_label = 'Aggregate capital K'
 kplot.line('x', 'y', line_width=2, source=kplot_source)
 kplot.circle('x', 'y', fill_color='circle_color', size=8, source=kplot_source)
 
+# line graph for Lpath
+lpath = tpi_vars['Lpath'][:69]
+lplot_source = ColumnDataSource(data=dict(x=time, y=lpath,
+                                circle_color=circle_color))
+
+lplot = figure(title='Time path for aggregate labor L', plot_width=500,
+               plot_height=300)
+lplot.xaxis.axis_label = 'Period t'
+lplot.yaxis.axis_label = 'Aggregate labor L'
+lplot.line('x', 'y', line_width=2, source=lplot_source)
+lplot.circle('x', 'y', fill_color='circle_color', size=8, source=lplot_source)
+
+# 2D plot for bpath
+bpath = ss_vars['bpath']
+# try ss output for b_ss
+import pdb;pdb.set_trace()
+bplot_source = ColumnDataSource(data=dict(x=sgrid, y=bpath))
+bplot = figure(title='Individual Savings by Age', plot_width=500,
+               plot_height=300)
+bplot.xaxis.axis_label = 'age-s'
+bplot.yaxis.axis_label = 'indiv. savings-b'
+bplot.line('x', 'y', line_width=2, line_dash='dashed', source=bplot_source)
+#bplot.line()
+#bplot.line()
+
 # callback for both graphs
 callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
-                    kplot_source=kplot_source), code="""
+                    kplot_source=kplot_source, lplot_source=lplot_source),
+                    code="""
     var data = source.data;
     var bdata = bpath_source.data;
     var kdata = kplot_source.data;
+    var ldata = lplot_source.data;
     var time = time.value;
     x = data['x'];
     y = data['y'];
@@ -153,8 +182,12 @@ callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
     kdata['circle_color'] = Array(69).fill('white');
     kdata['circle_color'][time] = 'blue';
 
+    ldata['circle_color']= Array(69).fill('white');
+    ldata['circle_color'][time] = 'blue';
+
     source.change.emit();
     kplot_source.change.emit();
+    lplot_source.change.emit();
 """)
 
 # time slider
@@ -162,10 +195,17 @@ time_slider = Slider(start=0, end=68, value=0, step=1, title='Time period',
                      callback=callback)
 callback.args['time'] = time_slider
 
-layout = layout([
-    [surface],
-    [kplot],
-    [widgetbox(time_slider)],
-    ])
+# layout = layout([
+#     [surface],
+#     [kplot, lplot],
+#     [widgetbox(time_slider)],
+#     ])
+
+layout = gridplot(
+    children=[[surface], [kplot, lplot], [bplot], [widgetbox(time_slider)]],
+    toolbar_location='right',
+    # sizing_mode='stretch_both',
+    toolbar_options=dict(logo='grey'),
+)
 
 show(layout)
