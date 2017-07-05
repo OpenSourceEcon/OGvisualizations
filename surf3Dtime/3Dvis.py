@@ -32,6 +32,8 @@ OPTIONS =
   xLabel: 'age-s'
   yLabel: 'ability-j'
   zLabel: 'indiv. savings-b'
+  zMin: -1
+  zMax: 4
   tooltip: false
 
 export class Surface3dView extends LayoutDOMView
@@ -140,7 +142,7 @@ surface_callback = CustomJS(args=dict(source=source, bsource=bsource,
     if (button == '0') {
         var source_data = source.data;
         var data = bsource.data;
-        var bdata = data['z'];
+        var bdata = data['z']
 
         x = source_data['x'];
         y = source_data['y'];
@@ -170,7 +172,7 @@ surface_callback = CustomJS(args=dict(source=source, bsource=bsource,
     if (button == '2') {
         var source_data = source.data;
         var data = nsource.data;
-        var ndata = data['z']
+        var ndata = data['z'];
 
         x = source_data['x'];
         y = source_data['y'];
@@ -202,23 +204,23 @@ kplot.circle('x', 'y', fill_color='circle_color', size=8, source=kplot_source)
 
 # the other path data for the other line plots
 rpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['rpath'][:69],
-                                circle_color=circle_color))
+                                   circle_color=circle_color))
 wpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['wpath'][:69],
-                                circle_color=circle_color))
+                                   circle_color=circle_color))
 kpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Kpath'][:69],
-                                circle_color=circle_color))
+                                   circle_color=circle_color))
 lpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Lpath'][:69],
-                                circle_color=circle_color))
+                                   circle_color=circle_color))
 ypath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Ypath'][:69],
-                                circle_color=circle_color))
+                                   circle_color=circle_color))
 cpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Cpath'][:69],
-                                circle_color=circle_color))
+                                   circle_color=circle_color))
 
 
 # radio buttons and callback for line graph
 line_callback = CustomJS(args=dict(kplot_source=kplot_source, rpath=rpath,
-                            wpath=wpath, kpath=kpath, lpath= lpath,
-                            ypath=ypath, cpath=cpath), code="""
+                                   wpath=wpath, kpath=kpath, lpath=lpath,
+                                   ypath=ypath, cpath=cpath), code="""
     var button = line_radio_group.active;
 
     if (button == '0') {
@@ -304,16 +306,11 @@ line_radio_group = RadioButtonGroup(labels=['r', 'w', 'K', 'L', 'Y', 'C'],
                                     active=2, callback=line_callback)
 line_callback.args['line_radio_group'] = line_radio_group
 
-def update_line_plot(attrname, old, new):
-    kplot.title = 'TEST TEST'
-
-line_radio_group.on_change('active', update_line_plot)
-
-
 # callback for both graphs
 slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
-                           cpath_source=cpath_source, npath_source=npath_source,
-                           kplot_source=kplot_source),
+                                     cpath_source=cpath_source,
+                                     npath_source=npath_source,
+                                     kplot_source=kplot_source),
                            code="""
     var data = source.data;
     var kdata = kplot_source.data;
