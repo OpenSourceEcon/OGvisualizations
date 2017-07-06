@@ -32,7 +32,8 @@ OPTIONS =
   xLabel: 'age-s'
   yLabel: 'ability-j'
   zLabel: 'indiv. savings-b'
-  tooltip: false
+  zMin: -20
+  zMax: 50
 
 export class Surface3dView extends LayoutDOMView
 
@@ -149,7 +150,8 @@ surface_callback = CustomJS(args=dict(source=source, bsource=bsource,
         for (i = 0; i < z.length; i++) {
                 z[i] = bdata[i];
         }
-
+        console.log(x)
+        console.log(y)
         console.log(z)
         source.change.emit();
     }
@@ -316,6 +318,7 @@ slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
     var kdata = kplot_source.data;
     var time = time.value;
     var button = surface_radio_group.active;
+    var plot_points = 560;
 
     if (button == '0') {
         var bpath = bpath_source.data;
@@ -324,14 +327,15 @@ slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
         y = data['y'];
         z = data['z'];
 
-        beg = time*80;
-        end = (time+1)*80;
+        beg = time*plot_points;
+        end = (time+1)*plot_points;
         b = bpath['bpath'].slice(beg,end);
 
         for (i = 0; i < z.length; i++) {
                 z[i] = b[i];
         }
         source.change.emit();
+        console.log(z)
     }
 
     if (button == '1') {
@@ -341,8 +345,8 @@ slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
         y = data['y'];
         z = data['z'];
 
-        beg = time*80;
-        end = (time+1)*80;
+        beg = time*plot_points;
+        end = (time+1)*plot_points;
         c = cpath['cpath'].slice(beg,end);
 
         for (i = 0; i < z.length; i++) {
@@ -358,8 +362,8 @@ slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
         y = data['y'];
         z = data['z'];
 
-        beg = time*80;
-        end = (time+1)*80;
+        beg = time*plot_points;
+        end = (time+1)*plot_points;
         n = npath['npath'].slice(beg,end);
 
         for (i = 0; i < z.length; i++) {
