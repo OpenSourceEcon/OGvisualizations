@@ -32,7 +32,8 @@ OPTIONS =
   xLabel: 'age-s'
   yLabel: 'ability-j'
   zLabel: 'indiv. savings-b'
-  tooltip: false
+  zMin: -20
+  zMax: 50
 
 export class Surface3dView extends LayoutDOMView
 
@@ -149,6 +150,9 @@ surface_callback = CustomJS(args=dict(source=source, bsource=bsource,
         for (i = 0; i < z.length; i++) {
                 z[i] = bdata[i];
         }
+        console.log(x)
+        console.log(y)
+        console.log(z)
         source.change.emit();
     }
 
@@ -187,9 +191,9 @@ surface_radio_group = RadioButtonGroup(labels=['B', 'C', 'N'], active=0,
 surface_callback.args['surface_radio_group'] = surface_radio_group
 
 # line graph for Kpath
-kpath = tpi_vars['Kpath'][:69]
-time = range(69)
-circle_color = ['blue'] + ['white']*68
+kpath = tpi_vars['Kpath'][:80]
+time = range(80)
+circle_color = ['blue'] + ['white']*79
 kplot_source = ColumnDataSource(data=dict(x=time, y=kpath,
                                 circle_color=circle_color))
 
@@ -201,17 +205,17 @@ kplot.line('x', 'y', line_width=2, source=kplot_source)
 kplot.circle('x', 'y', fill_color='circle_color', size=8, source=kplot_source)
 
 # the other path data for the other line plots
-rpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['rpath'][:69],
+rpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['rpath'][:80],
                                    circle_color=circle_color))
-wpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['wpath'][:69],
+wpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['wpath'][:80],
                                    circle_color=circle_color))
-kpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Kpath'][:69],
+kpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Kpath'][:80],
                                    circle_color=circle_color))
-lpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Lpath'][:69],
+lpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Lpath'][:80],
                                    circle_color=circle_color))
-ypath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Ypath'][:69],
+ypath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Ypath'][:80],
                                    circle_color=circle_color))
-cpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Cpath'][:69],
+cpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Cpath'][:80],
                                    circle_color=circle_color))
 
 
@@ -314,6 +318,7 @@ slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
     var kdata = kplot_source.data;
     var time = time.value;
     var button = surface_radio_group.active;
+    var plot_points = 560;
 
     if (button == '0') {
         var bpath = bpath_source.data;
@@ -322,14 +327,15 @@ slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
         y = data['y'];
         z = data['z'];
 
-        beg = time*80;
-        end = (time+1)*80;
+        beg = time*plot_points;
+        end = (time+1)*plot_points;
         b = bpath['bpath'].slice(beg,end);
 
         for (i = 0; i < z.length; i++) {
                 z[i] = b[i];
         }
         source.change.emit();
+        console.log(z)
     }
 
     if (button == '1') {
@@ -339,8 +345,8 @@ slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
         y = data['y'];
         z = data['z'];
 
-        beg = time*80;
-        end = (time+1)*80;
+        beg = time*plot_points;
+        end = (time+1)*plot_points;
         c = cpath['cpath'].slice(beg,end);
 
         for (i = 0; i < z.length; i++) {
@@ -356,8 +362,8 @@ slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
         y = data['y'];
         z = data['z'];
 
-        beg = time*80;
-        end = (time+1)*80;
+        beg = time*plot_points;
+        end = (time+1)*plot_points;
         n = npath['npath'].slice(beg,end);
 
         for (i = 0; i < z.length; i++) {
@@ -366,14 +372,14 @@ slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
         source.change.emit();
     }
 
-    kdata['circle_color'] = Array(69).fill('white');
+    kdata['circle_color'] = Array(80).fill('white');
     kdata['circle_color'][time] = 'blue';
 
     kplot_source.change.emit();
 """)
 
 # time slider
-time_slider = Slider(start=0, end=68, value=0, step=1, title='Time period',
+time_slider = Slider(start=0, end=79, value=0, step=1, title='Time period',
                      callback=slider_callback)
 slider_callback.args['time'] = time_slider
 slider_callback.args['surface_radio_group'] = surface_radio_group
