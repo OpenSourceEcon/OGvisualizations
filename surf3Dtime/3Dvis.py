@@ -32,8 +32,6 @@ OPTIONS =
   xLabel: 'age-s'
   yLabel: 'ability-j'
   zLabel: 'indiv. savings-b'
-  zMin: -1
-  zMax: 4
   tooltip: false
 
 export class Surface3dView extends LayoutDOMView
@@ -96,8 +94,8 @@ class Surface3d(LayoutDOM):
 
 
 # read in data
-tpi_args = pickle.load(open('HeteroAbil/OUTPUT/TPI/tpi_args.pkl', 'rb'))
-tpi_vars = pickle.load(open('HeteroAbil/OUTPUT/TPI/tpi_vars.pkl', 'rb'))
+tpi_args = pickle.load(open('HeteroAbil/s80j7/OUTPUT/TPI/tpi_args.pkl', 'rb'))
+tpi_vars = pickle.load(open('HeteroAbil/s80j7/OUTPUT/TPI/tpi_vars.pkl', 'rb'))
 # ss_vars = pickle.load(open('HeteroAbil/OUTPUT/SS/ss_vars.pkl', 'rb'))
 
 # 3D plot for bpath
