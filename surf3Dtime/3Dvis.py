@@ -7,8 +7,7 @@ from bokeh.core.properties import Instance, String
 from bokeh.models import ColumnDataSource, LayoutDOM, CustomJS, Slider
 from bokeh.layouts import layout, widgetbox, gridplot
 from bokeh.models.widgets import RadioButtonGroup
-from bokeh.plotting import figure
-from bokeh.io import show
+from bokeh.plotting import figure, curdoc
 
 JS_CODE = """
 import * as p from "core/properties"
@@ -150,9 +149,6 @@ surface_callback = CustomJS(args=dict(source=source, bsource=bsource,
         for (i = 0; i < z.length; i++) {
                 z[i] = bdata[i];
         }
-        console.log(x)
-        console.log(y)
-        console.log(z)
         source.change.emit();
     }
 
@@ -304,9 +300,32 @@ line_callback = CustomJS(args=dict(kplot_source=kplot_source, rpath=rpath,
     }
 """)
 
+
+def my_radio_handler(new):
+    if new == 0:
+        kplot.title.text = 'Time path for real interest rate r'
+        kplot.yaxis.axis_label = 'Real interest rate r'
+    elif new == 1:
+        kplot.title.text = 'Time path for real wage w'
+        kplot.yaxis.axis_label = 'Real wage w'
+    elif new == 2:
+        kplot.title.text = 'Time path for aggregate capital stock K'
+        kplot.yaxis.axis_label = 'Aggregate capital K'
+    elif new == 3:
+        kplot.title.text = 'Time path for aggregate labor L'
+        kplot.yaxis.axis_label = 'Aggregate labor L'
+    elif new == 4:
+        kplot.title.text = 'Time path for aggregate output (GDP) Y'
+        kplot.yaxis.axis_label = 'Aggregate output Y'
+    elif new == 5:
+        kplot.title.text = 'Time path for aggregate consumption C'
+        kplot.yaxis.axis_label = 'Aggregate consumption C'
+
+
 line_radio_group = RadioButtonGroup(labels=['r', 'w', 'K', 'L', 'Y', 'C'],
                                     active=2, callback=line_callback)
 line_callback.args['line_radio_group'] = line_radio_group
+line_radio_group.on_click(my_radio_handler)
 
 # callback for both graphs
 slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
@@ -335,7 +354,6 @@ slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
                 z[i] = b[i];
         }
         source.change.emit();
-        console.log(z)
     }
 
     if (button == '1') {
@@ -392,18 +410,5 @@ layout = gridplot(
     toolbar_options=dict(logo='grey'),
 )
 
-show(layout)
-
-# # 2D plot for bpath
-# bpath = tpi_vars['bpath'].T.ravel()
-# # try ss output for b_ss
-# # import pdb;pdb.set_trace()
-# bplot_source_1 = ColumnDataSource(data=dict(x=sgrid, y=bpath[:20]))
-# bplot_source_1 = ColumnDataSource(data=dict(x=sgrid, y=bpath[20:20]))
-# bplot = figure(title='Individual Savings by Age', plot_width=500,
-#                plot_height=300)
-# bplot.xaxis.axis_label = 'age-s'
-# bplot.yaxis.axis_label = 'indiv. savings-b'
-# bplot.line('x', 'y', line_width=2, line_dash='dashed', source=bplot_source)
-# #bplot.line()
-# #bplot.line()
+# put the button and plot in a layout and add to the document
+curdoc().add_root(layout)
