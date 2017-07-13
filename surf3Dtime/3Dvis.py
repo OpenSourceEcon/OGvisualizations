@@ -29,7 +29,6 @@ class Surface3d(LayoutDOM):
 tpi_args = pickle.load(open('HeteroAbil/s80j7/OUTPUT/TPI/tpi_args.pkl', 'rb'))
 tpi_vars = pickle.load(open('HeteroAbil/s80j7/OUTPUT/TPI/tpi_vars.pkl', 'rb'))
 
-# 3D plot for bpath
 S = tpi_args[1]
 lambdas = tpi_args[4]
 
@@ -63,10 +62,12 @@ npath_source = ColumnDataSource(data=dict(npath=npath_ravel))
 
 surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source)
 
-# radio buttons and callback for 3D surfaces
+# callback for 3D surface
 surface_callback = CustomJS(args=dict(source=source, bsource=bsource,
                             csource=csource, nsource=nsource, surface=surface),
                             code=SURFACE_CALLBACK_SCRIPT)
+
+# buttons for 3D surface
 surface_radio_group = RadioButtonGroup(labels=['b(j,s,t)', 'c(j,s,t)',
                                                'n(j,s,t)'],
                                        active=0,
@@ -74,12 +75,12 @@ surface_radio_group = RadioButtonGroup(labels=['b(j,s,t)', 'c(j,s,t)',
 surface_callback.args['surface_radio_group'] = surface_radio_group
 
 # line graph for Kpath
-kpath = tpi_vars['Kpath'][:80]
-time = range(80)
-circle_color = ['blue'] + ['white']*79
+time_periods = 80
+kpath = tpi_vars['Kpath'][:time_periods]
+time = range(time_periods)
+circle_color = ['blue'] + ['white']*(time_periods-1)
 kplot_source = ColumnDataSource(data=dict(x=time, y=kpath,
                                 circle_color=circle_color))
-
 kplot = figure(title='Time path for aggregate capital stock K', plot_width=500,
                plot_height=300)
 kplot.xaxis.axis_label = 'Period t'
@@ -88,27 +89,27 @@ kplot.line('x', 'y', line_width=2, source=kplot_source)
 kplot.circle('x', 'y', fill_color='circle_color', size=8, source=kplot_source)
 
 # the other path data for the other line plots
-rpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['rpath'][:80],
+rpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['rpath'][:time_periods],
                                    circle_color=circle_color))
-wpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['wpath'][:80],
+wpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['wpath'][:time_periods],
                                    circle_color=circle_color))
-kpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Kpath'][:80],
+kpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Kpath'][:time_periods],
                                    circle_color=circle_color))
-lpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Lpath'][:80],
+lpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Lpath'][:time_periods],
                                    circle_color=circle_color))
-ypath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Ypath'][:80],
+ypath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Ypath'][:time_periods],
                                    circle_color=circle_color))
-cpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Cpath'][:80],
+cpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Cpath'][:time_periods],
                                    circle_color=circle_color))
 
-
-# radio buttons and callback for line graph
+# callback for the line graph
 line_callback = CustomJS(args=dict(kplot_source=kplot_source, rpath=rpath,
                                    wpath=wpath, kpath=kpath, lpath=lpath,
                                    ypath=ypath, cpath=cpath),
                          code=LINE_CALLBACK_SCRIPT)
 
 
+# change the text for the line plot depending on data source
 def my_radio_handler(new):
     if new == 0:
         kplot.title.text = 'Time path for real interest rate r'
@@ -130,12 +131,13 @@ def my_radio_handler(new):
         kplot.yaxis.axis_label = 'Aggregate consumption C'
 
 
+# create buttons for line graph
 line_radio_group = RadioButtonGroup(labels=['r', 'w', 'K', 'L', 'Y', 'C'],
                                     active=2, callback=line_callback)
 line_callback.args['line_radio_group'] = line_radio_group
 line_radio_group.on_click(my_radio_handler)
 
-# callback for both graphs
+# callback for both graphs from slider
 slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
                                      cpath_source=cpath_source,
                                      npath_source=npath_source,
@@ -148,6 +150,7 @@ time_slider = Slider(start=0, end=79, value=0, step=1, title='Time period',
 slider_callback.args['time'] = time_slider
 slider_callback.args['surface_radio_group'] = surface_radio_group
 
+# create layout to place all items
 layout = gridplot(
     children=[[surface], [widgetbox(surface_radio_group)],
               [kplot, widgetbox(line_radio_group)], [widgetbox(time_slider)]],

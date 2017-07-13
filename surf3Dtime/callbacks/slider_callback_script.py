@@ -3,7 +3,9 @@ var data = source.data;
 var kdata = kplot_source.data;
 var time = time.value;
 var button = surface_radio_group.active;
-var plot_points = 560;
+var time_periods = 80;
+var num_abilities = 7;
+var plot_points = time_periods*num_abilities;
 
 if (button == '0') {
 var bpath = bpath_source.data;
@@ -56,7 +58,7 @@ z[i] = n[i];
 source.change.emit();
 }
 
-kdata['circle_color'] = Array(80).fill('white');
+kdata['circle_color'] = Array(time_periods).fill('white');
 kdata['circle_color'][time] = 'blue';
 
 kplot_source.change.emit();
