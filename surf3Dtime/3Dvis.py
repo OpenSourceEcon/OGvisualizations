@@ -151,8 +151,7 @@ slider_callback.args['surface_radio_group'] = surface_radio_group
 layout = gridplot(
     children=[[surface], [widgetbox(surface_radio_group)],
               [kplot, widgetbox(line_radio_group)], [widgetbox(time_slider)]],
-    toolbar_location='right',
-    toolbar_options=dict(logo='grey'),
+    toolbar_location=None
 )
 
 # add the layout to the document
