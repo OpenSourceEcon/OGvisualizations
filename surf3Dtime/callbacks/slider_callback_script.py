@@ -1,6 +1,6 @@
 SLIDER_CALLBACK_SCRIPT = """
 var data = source.data;
-var kdata = kplot_source.data;
+var kdata = line_plot_source.data;
 var time = time.value;
 var button = surface_radio_group.active;
 var time_periods = 80;
@@ -61,5 +61,5 @@ source.change.emit();
 kdata['circle_color'] = Array(time_periods).fill('white');
 kdata['circle_color'][time] = '#3288bd';
 
-kplot_source.change.emit();
+line_plot_source.change.emit();
 """
