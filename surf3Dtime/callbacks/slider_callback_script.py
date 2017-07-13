@@ -59,7 +59,7 @@ source.change.emit();
 }
 
 kdata['circle_color'] = Array(time_periods).fill('white');
-kdata['circle_color'][time] = 'blue';
+kdata['circle_color'][time] = '#3288bd';
 
 kplot_source.change.emit();
 """
