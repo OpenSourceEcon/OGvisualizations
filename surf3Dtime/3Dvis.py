@@ -248,8 +248,8 @@ slider_callback.args['surface_radio_group'] = surface_radio_group
 # create layout to place all items
 layout = gridplot(
     children=[[surface], [widgetbox(surface_radio_group)],
-              [line_plot, widgetbox(line_radio_group)],
-              [two_d_plot, two_d_radio_group],
+              [line_plot, two_d_plot],
+              [widgetbox(line_radio_group, width=525), widgetbox(two_d_radio_group)],
               [widgetbox(time_slider)]],
     toolbar_location=None
 )
