@@ -129,39 +129,41 @@ two_d_plot_source = ColumnDataSource(two_d_plot_data)
 two_d_plot.xaxis.axis_label = 'age s'
 two_d_plot.yaxis.axis_label = 'indiv. savings b'
 
+legend_labels = ['0 - 25%', '25 - 50%', '50 - 70%', '70 - 80%', '80 - 90%',
+                 '90 - 99%', '99 - 100%']
 line_styles = ['solid', 'dashed', 'dotted', 'dotdash', 'dashdot']
 line_colors = ['#3288bd', '#009900', '#552A86', '#fee08b', '#fc8d59']
 glyph_list = []
 for j in range(num_abilities):
     y = 'y_' + str(j)
     if j <= 4:
-        glyph_list.append(two_d_plot.line('x', y, line_dash=line_styles[j],
-                                          line_color=line_colors[j],
-                                          line_width=2,
-                                          source=two_d_plot_source))
+        glyph_list.append([two_d_plot.line('x', y, line_dash=line_styles[j],
+                                           line_color=line_colors[j],
+                                           line_width=2,
+                                           source=two_d_plot_source)])
     if j == 5:
-        glyph_list.append(two_d_plot.square('x', y, fill_color=None,
-                                            line_color=line_colors[j-5],
-                                            source=two_d_plot_source))
-        glyph_list.append(two_d_plot.line('x', y, line_color=line_colors[j-5],
-                                          source=two_d_plot_source))
+        square_list = []
+        square_list.append(two_d_plot.square('x', y, fill_color=None,
+                                             line_color=line_colors[j-5],
+                                             source=two_d_plot_source))
+        square_list.append(two_d_plot.line('x', y, line_color=line_colors[j-5],
+                                           source=two_d_plot_source))
+        glyph_list.append(square_list)
     if j == 6:
-        glyph_list.append(two_d_plot.circle('x', y,
-                                            fill_color=line_colors[j-5],
-                                            line_color=line_colors[j-5],
-                                            source=two_d_plot_source))
-        glyph_list.append(two_d_plot.line('x', y, line_color=line_colors[j-5],
-                                          source=two_d_plot_source))
+        circle_list = []
+        circle_list.append(two_d_plot.circle('x', y,
+                                             fill_color=line_colors[j-5],
+                                             line_color=line_colors[j-5],
+                                             source=two_d_plot_source))
+        circle_list.append(two_d_plot.line('x', y, line_color=line_colors[j-5],
+                                           source=two_d_plot_source))
+        glyph_list.append(circle_list)
 
-legend = Legend(items=[
-    ('0 - 25%', [glyph_list[0]]),
-    ('25 - 50%', [glyph_list[1]]),
-    ('50 - 70%', [glyph_list[2]]),
-    ('70 - 80%', [glyph_list[3]]),
-    ('80 - 90%', [glyph_list[4]]),
-    ('90 - 99%', [glyph_list[5], glyph_list[6]]),
-    ('99 - 100%', [glyph_list[7], glyph_list[8]]),
-], location=(10, -30))
+legend_items = []
+for i in range(len(legend_labels)):
+    legend_items.append((legend_labels[i], glyph_list[i]))
+
+legend = Legend(items=legend_items, location=(10, -30))
 
 two_d_plot.add_layout(legend, 'right')
 
@@ -242,8 +244,8 @@ slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
                            code=SLIDER_CALLBACK_SCRIPT)
 
 # time slider
-time_slider = Slider(start=0, end=79, value=0, step=1, title='Time period',
-                     callback=slider_callback)
+time_slider = Slider(start=0, end=time_periods-1, value=0, step=1,
+                     title='Time period', callback=slider_callback)
 slider_callback.args['time'] = time_slider
 slider_callback.args['surface_radio_group'] = surface_radio_group
 
