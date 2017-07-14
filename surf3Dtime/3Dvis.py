@@ -1,5 +1,6 @@
 import numpy as np
 import pickle
+import os
 
 from bokeh.core.properties import Instance, String
 from bokeh.models import ColumnDataSource, LayoutDOM, CustomJS, Slider, Legend
@@ -24,8 +25,9 @@ class Surface3d(LayoutDOM):
 
 
 # DATA
-tpi_args = pickle.load(open('HeteroAbil/s80j7/OUTPUT/TPI/tpi_args.pkl', 'rb'))
-tpi_vars = pickle.load(open('HeteroAbil/s80j7/OUTPUT/TPI/tpi_vars.pkl', 'rb'))
+tpi_args = pickle.load(open('surf3Dtime/HeteroAbil/s80j7/OUTPUT/TPI/tpi_args.pkl', 'rb'))
+tpi_vars = pickle.load(open('surf3Dtime/HeteroAbil/s80j7/OUTPUT/TPI/tpi_vars.pkl', 'rb'))
+ss_vars = pickle.load(open('surf3Dtime/HeteroAbil/s80j7/OUTPUT/SS/ss_vars.pkl', 'rb'))
 
 S = tpi_args[1]
 lambdas = tpi_args[4]
@@ -50,7 +52,6 @@ nvalue = nvalue.ravel()
 npath_ravel = tpi_vars['npath'].T.ravel()
 
 # data for 2D plot
-ss_vars = pickle.load(open('HeteroAbil/s80j7/OUTPUT/SS/ss_vars.pkl', 'rb'))
 b_ss = ss_vars['b_ss']
 c_ss = ss_vars['c_ss']
 n_ss = ss_vars['n_ss']
