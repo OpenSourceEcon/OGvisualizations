@@ -5,7 +5,7 @@ import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 # See: http://visjs.org/graph3d_examples.html for more details.
 OPTIONS =
   width:  '450px'
-  height: '450px'
+  height: '375px'
   style: 'surface'
   showPerspective: true
   showGrid: true
