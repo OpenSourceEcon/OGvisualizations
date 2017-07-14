@@ -58,8 +58,6 @@ n_ss = ss_vars['n_ss']
 two_d_all_sources = ColumnDataSource(data=dict(b_ss=b_ss, c_ss=c_ss,
                                      n_ss=n_ss))
 
-# import pdb; pdb.set_trace()
-
 source = ColumnDataSource(data=dict(x=smat, y=jmat, z=bvalue, color=bvalue))
 bsource = ColumnDataSource(data=dict(x=smat, y=jmat, z=bvalue, color=bvalue))
 csource = ColumnDataSource(data=dict(x=smat, y=jmat, z=cvalue, color=cvalue))
@@ -95,18 +93,21 @@ two_d_radio_group = RadioButtonGroup(labels=['b(j,s,t)', 'c(j,s,t)',
 def two_d_radio_handler(new):
     data = dict(x=sgrid)
     if new == 0:
+        two_d_plot.title.text = 'Age path for individual savings b'
         two_d_plot.yaxis.axis_label = 'indiv. savings b'
         for j in range(num_abilities):
             data['y_' + str(j)] = b_ss[:, j]
 
         two_d_plot_source.data = data
     if new == 1:
+        two_d_plot.title.text = 'Age path for individual consumption c'
         two_d_plot.yaxis.axis_label = 'indiv. consumption c'
         for j in range(num_abilities):
             data['y_' + str(j)] = c_ss[:, j]
 
         two_d_plot_source.data = data
     if new == 2:
+        two_d_plot.title.text = 'Age path for labor supply n'
         two_d_plot.yaxis.axis_label = 'labor supply n'
         for j in range(num_abilities):
             data['y_' + str(j)] = n_ss[:, j]
@@ -118,7 +119,8 @@ two_d_radio_group.on_click(two_d_radio_handler)
 
 # create 2d plot
 num_abilities = 7
-two_d_plot = figure(plot_width=600, plot_height=300)
+two_d_plot = figure(plot_width=600, plot_height=300,
+                    title='Age path for individual savings b')
 two_d_plot_data = dict(x=sgrid)
 for j in range(num_abilities):
     two_d_plot_data['y_' + str(j)] = b_ss[:, j]
@@ -164,17 +166,17 @@ legend = Legend(items=[
 two_d_plot.add_layout(legend, 'right')
 
 # LINE GRAPH
-# line graph for Kpath initially
+# line graph for rpath initially
 time_periods = 80
-kpath = tpi_vars['Kpath'][:time_periods]
+rpath = tpi_vars['rpath'][:time_periods]
 time = range(time_periods)
 circle_color = ['#3288bd'] + ['white']*(time_periods-1)
-line_plot_source = ColumnDataSource(data=dict(x=time, y=kpath,
+line_plot_source = ColumnDataSource(data=dict(x=time, y=rpath,
                                     circle_color=circle_color))
-line_plot = figure(title='Time path for aggregate capital stock K',
+line_plot = figure(title='Time path for real interest rate r',
                    plot_width=500, plot_height=300)
 line_plot.xaxis.axis_label = 'Period t'
-line_plot.yaxis.axis_label = 'Aggregate capital K'
+line_plot.yaxis.axis_label = 'real interest rate r'
 line_plot.line('x', 'y', line_width=2, source=line_plot_source)
 line_plot.circle('x', 'y', fill_color='circle_color', size=8,
                  source=line_plot_source)
@@ -204,28 +206,28 @@ line_callback = CustomJS(args=dict(line_plot_source=line_plot_source,
 def line_radio_handler(new):
     if new == 0:
         line_plot.title.text = 'Time path for real interest rate r'
-        line_plot.yaxis.axis_label = 'Real interest rate r'
+        line_plot.yaxis.axis_label = 'real interest rate r'
     elif new == 1:
         line_plot.title.text = 'Time path for real wage w'
-        line_plot.yaxis.axis_label = 'Real wage w'
+        line_plot.yaxis.axis_label = 'real wage w'
     elif new == 2:
         line_plot.title.text = 'Time path for aggregate capital stock K'
-        line_plot.yaxis.axis_label = 'Aggregate capital K'
+        line_plot.yaxis.axis_label = 'aggregate capital K'
     elif new == 3:
         line_plot.title.text = 'Time path for aggregate labor L'
-        line_plot.yaxis.axis_label = 'Aggregate labor L'
+        line_plot.yaxis.axis_label = 'aggregate labor L'
     elif new == 4:
         line_plot.title.text = 'Time path for aggregate output (GDP) Y'
-        line_plot.yaxis.axis_label = 'Aggregate output Y'
+        line_plot.yaxis.axis_label = 'aggregate output Y'
     elif new == 5:
         line_plot.title.text = 'Time path for aggregate consumption C'
-        line_plot.yaxis.axis_label = 'Aggregate consumption C'
+        line_plot.yaxis.axis_label = 'aggregate consumption C'
 
 
 # create buttons for line graph
 line_radio_group = RadioButtonGroup(labels=['r(t)', 'w(t)', 'K(t)', 'L(t)',
                                             'Y(t)', 'C(t)'],
-                                    active=2, callback=line_callback)
+                                    active=0, callback=line_callback)
 line_callback.args['line_radio_group'] = line_radio_group
 line_radio_group.on_click(line_radio_handler)
 
@@ -249,7 +251,8 @@ slider_callback.args['surface_radio_group'] = surface_radio_group
 layout = gridplot(
     children=[[surface], [widgetbox(surface_radio_group)],
               [line_plot, two_d_plot],
-              [widgetbox(line_radio_group, width=525), widgetbox(two_d_radio_group)],
+              [widgetbox(line_radio_group, width=525),
+               widgetbox(two_d_radio_group)],
               [widgetbox(time_slider)]],
     toolbar_location=None
 )
