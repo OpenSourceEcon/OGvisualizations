@@ -1,0 +1,20 @@
+{
+  "name": "OGvisualizations",
+  "version": "1.0.0",
+  "description": "Visualizations from large-scale overlapping generations model",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hayleefay/OGvisualizations.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hayleefay/OGvisualizations/issues"
+  },
+  "homepage": "https://github.com/hayleefay/OGvisualizations#readme"
+}
