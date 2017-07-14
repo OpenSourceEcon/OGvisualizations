@@ -27,13 +27,6 @@ class Surface3d(LayoutDOM):
 tpi_args = pickle.load(open('HeteroAbil/s80j7/OUTPUT/TPI/tpi_args.pkl', 'rb'))
 tpi_vars = pickle.load(open('HeteroAbil/s80j7/OUTPUT/TPI/tpi_vars.pkl', 'rb'))
 
-# data for 2D plot
-ss_vars = pickle.load(open('HeteroAbil/s80j7/OUTPUT/SS/ss_vars.pkl', 'rb'))
-b_ss = ss_vars['b_ss']
-c_ss = ss_vars['c_ss']
-n_ss = ss_vars['n_ss']
-twod_all_sources = ColumnDataSource(data=dict(b_ss=b_ss, c_ss=c_ss, n_ss=n_ss))
-
 S = tpi_args[1]
 lambdas = tpi_args[4]
 
@@ -56,6 +49,16 @@ nvalue = tpi_vars['npath'].T[0]
 nvalue = nvalue.ravel()
 npath_ravel = tpi_vars['npath'].T.ravel()
 
+# data for 2D plot
+ss_vars = pickle.load(open('HeteroAbil/s80j7/OUTPUT/SS/ss_vars.pkl', 'rb'))
+b_ss = ss_vars['b_ss']
+c_ss = ss_vars['c_ss']
+n_ss = ss_vars['n_ss']
+two_d_all_sources = ColumnDataSource(data=dict(b_ss=b_ss, c_ss=c_ss,
+                                     n_ss=n_ss))
+
+# import pdb; pdb.set_trace()
+
 source = ColumnDataSource(data=dict(x=smat, y=jmat, z=bvalue, color=bvalue))
 bsource = ColumnDataSource(data=dict(x=smat, y=jmat, z=bvalue, color=bvalue))
 csource = ColumnDataSource(data=dict(x=smat, y=jmat, z=cvalue, color=cvalue))
@@ -65,7 +68,7 @@ bpath_source = ColumnDataSource(data=dict(bpath=bpath_ravel))
 cpath_source = ColumnDataSource(data=dict(cpath=cpath_ravel))
 npath_source = ColumnDataSource(data=dict(npath=npath_ravel))
 
-## 3D SURFACE
+# 3D SURFACE
 surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source)
 
 # callback for 3D surface
@@ -81,64 +84,47 @@ surface_radio_group = RadioButtonGroup(labels=['b(j,s,t)', 'c(j,s,t)',
                                        callback=surface_callback)
 surface_callback.args['surface_radio_group'] = surface_radio_group
 
-## 2D PLOT
+# 2D PLOT
 # create 2d plot buttons
-twod_radio_group = RadioButtonGroup(labels=['b(j,s,t)', 'c(j,s,t)',
-                                            'n(j,s,t)'], active=0)
+two_d_radio_group = RadioButtonGroup(labels=['b(j,s,t)', 'c(j,s,t)',
+                                             'n(j,s,t)'], active=0)
 
 
 # listener and function for altering the 2D plot
-def twod_radio_handler(new):
+def two_d_radio_handler(new):
+    data = dict(x=sgrid)
     if new == 0:
-        twod_plot.yaxis.axis_label = 'indiv. savings b'
-        twod_plot_source.data = dict(
-            x=sgrid,
-            y_0=b_ss[:, 0],
-            y_1=b_ss[:, 1],
-            y_2=b_ss[:, 2],
-            y_3=b_ss[:, 3],
-            y_4=b_ss[:, 4],
-            y_5=b_ss[:, 5],
-            y_6=b_ss[:, 6],
-        )
+        two_d_plot.yaxis.axis_label = 'indiv. savings b'
+        for j in range(num_abilities):
+            data['y_' + str(j)] = b_ss[:, j]
+
+        two_d_plot_source.data = data
     if new == 1:
-        twod_plot.yaxis.axis_label = 'indiv. consumption c'
-        twod_plot_source.data = dict(
-            x=sgrid,
-            y_0=c_ss[:, 0],
-            y_1=c_ss[:, 1],
-            y_2=c_ss[:, 2],
-            y_3=c_ss[:, 3],
-            y_4=c_ss[:, 4],
-            y_5=c_ss[:, 5],
-            y_6=c_ss[:, 6],
-        )
+        two_d_plot.yaxis.axis_label = 'indiv. consumption c'
+        for j in range(num_abilities):
+            data['y_' + str(j)] = c_ss[:, j]
+
+        two_d_plot_source.data = data
     if new == 2:
-        twod_plot.yaxis.axis_label = 'labor supply n'
-        twod_plot_source.data = dict(
-            x=sgrid,
-            y_0=n_ss[:, 0],
-            y_1=n_ss[:, 1],
-            y_2=n_ss[:, 2],
-            y_3=n_ss[:, 3],
-            y_4=n_ss[:, 4],
-            y_5=n_ss[:, 5],
-            y_6=n_ss[:, 6],
-        )
+        two_d_plot.yaxis.axis_label = 'labor supply n'
+        for j in range(num_abilities):
+            data['y_' + str(j)] = n_ss[:, j]
+
+        two_d_plot_source.data = data
 
 
-twod_radio_group.on_click(twod_radio_handler)
+two_d_radio_group.on_click(two_d_radio_handler)
 
 # create 2d plot
 num_abilities = 7
-twod_plot = figure(plot_width=600, plot_height=300)
-twod_plot_source = ColumnDataSource(dict(x=sgrid, y_0=b_ss[:, 0],
-                                         y_1=b_ss[:, 1], y_2=b_ss[:, 2],
-                                         y_3=b_ss[:, 3], y_4=b_ss[:, 4],
-                                         y_5=b_ss[:, 5], y_6=b_ss[:, 6]))
+two_d_plot = figure(plot_width=600, plot_height=300)
+two_d_plot_data = dict(x=sgrid)
+for j in range(num_abilities):
+    two_d_plot_data['y_' + str(j)] = b_ss[:, j]
+two_d_plot_source = ColumnDataSource(two_d_plot_data)
 
-twod_plot.xaxis.axis_label = 'age s'
-twod_plot.yaxis.axis_label = 'indiv. savings b'
+two_d_plot.xaxis.axis_label = 'age s'
+two_d_plot.yaxis.axis_label = 'indiv. savings b'
 
 line_styles = ['solid', 'dashed', 'dotted', 'dotdash', 'dashdot']
 line_colors = ['#3288bd', '#009900', '#552A86', '#fee08b', '#fc8d59']
@@ -146,22 +132,23 @@ glyph_list = []
 for j in range(num_abilities):
     y = 'y_' + str(j)
     if j <= 4:
-        glyph_list.append(twod_plot.line('x', y, line_dash=line_styles[j],
-                                         line_color=line_colors[j],
-                                         line_width=2,
-                                         source=twod_plot_source))
+        glyph_list.append(two_d_plot.line('x', y, line_dash=line_styles[j],
+                                          line_color=line_colors[j],
+                                          line_width=2,
+                                          source=two_d_plot_source))
     if j == 5:
-        glyph_list.append(twod_plot.square('x', y, fill_color=None,
-                                           line_color=line_colors[j-5],
-                                           source=twod_plot_source))
-        glyph_list.append(twod_plot.line('x', y, line_color=line_colors[j-5],
-                                         source=twod_plot_source))
+        glyph_list.append(two_d_plot.square('x', y, fill_color=None,
+                                            line_color=line_colors[j-5],
+                                            source=two_d_plot_source))
+        glyph_list.append(two_d_plot.line('x', y, line_color=line_colors[j-5],
+                                          source=two_d_plot_source))
     if j == 6:
-        glyph_list.append(twod_plot.circle('x', y, fill_color=line_colors[j-5],
-                                           line_color=line_colors[j-5],
-                                           source=twod_plot_source))
-        glyph_list.append(twod_plot.line('x', y, line_color=line_colors[j-5],
-                                         source=twod_plot_source))
+        glyph_list.append(two_d_plot.circle('x', y,
+                                            fill_color=line_colors[j-5],
+                                            line_color=line_colors[j-5],
+                                            source=two_d_plot_source))
+        glyph_list.append(two_d_plot.line('x', y, line_color=line_colors[j-5],
+                                          source=two_d_plot_source))
 
 legend = Legend(items=[
     ('0 - 25%', [glyph_list[0]]),
@@ -173,7 +160,7 @@ legend = Legend(items=[
     ('99 - 100%', [glyph_list[7], glyph_list[8]]),
 ], location=(10, -30))
 
-twod_plot.add_layout(legend, 'right')
+two_d_plot.add_layout(legend, 'right')
 
 # LINE GRAPH
 # line graph for Kpath initially
@@ -246,7 +233,9 @@ line_radio_group.on_click(line_radio_handler)
 slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
                                      cpath_source=cpath_source,
                                      npath_source=npath_source,
-                                     line_plot_source=line_plot_source),
+                                     line_plot_source=line_plot_source,
+                                     two_d_plot_source=two_d_plot_source,
+                                     two_d_all_sources=two_d_all_sources),
                            code=SLIDER_CALLBACK_SCRIPT)
 
 # time slider
@@ -259,7 +248,7 @@ slider_callback.args['surface_radio_group'] = surface_radio_group
 layout = gridplot(
     children=[[surface], [widgetbox(surface_radio_group)],
               [line_plot, widgetbox(line_radio_group)],
-              [twod_plot, twod_radio_group],
+              [two_d_plot, two_d_radio_group],
               [widgetbox(time_slider)]],
     toolbar_location=None
 )

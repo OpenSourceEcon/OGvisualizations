@@ -1,8 +1,12 @@
 SLIDER_CALLBACK_SCRIPT = """
 var data = source.data;
 var kdata = line_plot_source.data;
+var twod_plot_source = twod_plot_source.data;
+var twod_all_sources = twod_all_sources.data;
+
 var time = time.value;
 var button = surface_radio_group.active;
+
 var time_periods = 80;
 var num_abilities = 7;
 var plot_points = time_periods*num_abilities;
