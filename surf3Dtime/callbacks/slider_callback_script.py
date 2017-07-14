@@ -12,6 +12,9 @@ var plot_points = time_periods*num_abilities;
 if (button == '0') {
 var bpath = bpath_source.data;
 
+window.surface_graph.setOptions({zLabel: 'indiv. savings-b', zMin: -20,
+zMax: 50})
+
 x = data['x'];
 y = data['y'];
 z = data['z'];
@@ -29,6 +32,9 @@ source.change.emit();
 if (button == '1') {
 var cpath = cpath_source.data;
 
+window.surface_graph.setOptions({zLabel: 'indiv. consumption-c', zMin: 0,
+zMax: 6})
+
 x = data['x'];
 y = data['y'];
 z = data['z'];
@@ -45,6 +51,8 @@ source.change.emit();
 
 if (button == '2') {
 var npath = npath_source.data;
+
+window.surface_graph.setOptions({zLabel: 'labor supply-n', zMin: 0, zMax: 1})
 
 x = data['x'];
 y = data['y'];

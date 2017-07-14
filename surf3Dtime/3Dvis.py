@@ -8,7 +8,6 @@ from bokeh.layouts import layout, widgetbox, gridplot
 from bokeh.models.widgets import RadioButtonGroup
 from bokeh.plotting import figure, curdoc
 
-from callbacks.surface_callback_script import SURFACE_CALLBACK_SCRIPT
 from callbacks.line_callback_script import LINE_CALLBACK_SCRIPT
 from callbacks.slider_callback_script import SLIDER_CALLBACK_SCRIPT
 
@@ -25,13 +24,17 @@ class Surface3d(LayoutDOM):
 
 
 # DATA
-tpi_args = pickle.load(open('surf3Dtime/HeteroAbil/s80j7/OUTPUT/TPI/tpi_args.pkl', 'rb'))
-tpi_vars = pickle.load(open('surf3Dtime/HeteroAbil/s80j7/OUTPUT/TPI/tpi_vars.pkl', 'rb'))
-ss_vars = pickle.load(open('surf3Dtime/HeteroAbil/s80j7/OUTPUT/SS/ss_vars.pkl', 'rb'))
+# read in data from pickle
+tpi_args = pickle.load(open(
+    'surf3Dtime/HeteroAbil/s80j7/OUTPUT/TPI/tpi_args.pkl', 'rb'))
+tpi_vars = pickle.load(open(
+    'surf3Dtime/HeteroAbil/s80j7/OUTPUT/TPI/tpi_vars.pkl', 'rb'))
+ss_vars = pickle.load(open(
+    'surf3Dtime/HeteroAbil/s80j7/OUTPUT/SS/ss_vars.pkl', 'rb'))
 
+# create smat and jmat
 S = tpi_args[1]
 lambdas = tpi_args[4]
-
 sgrid = np.arange(1, S + 1)
 lamcumsum = lambdas.cumsum()
 jmidgrid = 0.5 * lamcumsum + 0.5 * (lamcumsum - lambdas)
@@ -39,17 +42,27 @@ smat, jmat = np.meshgrid(sgrid, jmidgrid)
 smat = smat.ravel()
 jmat = jmat.ravel()
 
+# create bpath data objects
 bvalue = tpi_vars['bpath'].T[0]
 bvalue = bvalue.ravel()
+source = ColumnDataSource(data=dict(x=smat, y=jmat, z=bvalue, color=bvalue))
+bsource = ColumnDataSource(data=dict(x=smat, y=jmat, z=bvalue, color=bvalue))
 bpath_ravel = tpi_vars['bpath'].T.ravel()
+bpath_source = ColumnDataSource(data=dict(bpath=bpath_ravel))
 
+# create cpath data objects
 cvalue = tpi_vars['cpath'].T[0]
 cvalue = cvalue.ravel()
+csource = ColumnDataSource(data=dict(x=smat, y=jmat, z=cvalue, color=cvalue))
 cpath_ravel = tpi_vars['cpath'].T.ravel()
+cpath_source = ColumnDataSource(data=dict(cpath=cpath_ravel))
 
+# create npath data objects
 nvalue = tpi_vars['npath'].T[0]
 nvalue = nvalue.ravel()
+nsource = ColumnDataSource(data=dict(x=smat, y=jmat, z=nvalue, color=nvalue))
 npath_ravel = tpi_vars['npath'].T.ravel()
+npath_source = ColumnDataSource(data=dict(npath=npath_ravel))
 
 # data for 2D plot
 b_ss = ss_vars['b_ss']
@@ -58,30 +71,8 @@ n_ss = ss_vars['n_ss']
 two_d_all_sources = ColumnDataSource(data=dict(b_ss=b_ss, c_ss=c_ss,
                                      n_ss=n_ss))
 
-source = ColumnDataSource(data=dict(x=smat, y=jmat, z=bvalue, color=bvalue))
-bsource = ColumnDataSource(data=dict(x=smat, y=jmat, z=bvalue, color=bvalue))
-csource = ColumnDataSource(data=dict(x=smat, y=jmat, z=cvalue, color=cvalue))
-nsource = ColumnDataSource(data=dict(x=smat, y=jmat, z=nvalue, color=nvalue))
-
-bpath_source = ColumnDataSource(data=dict(bpath=bpath_ravel))
-cpath_source = ColumnDataSource(data=dict(cpath=cpath_ravel))
-npath_source = ColumnDataSource(data=dict(npath=npath_ravel))
-
 # 3D SURFACE
 surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source)
-
-# callback for 3D surface
-surface_callback = CustomJS(args=dict(source=source, bsource=bsource,
-                            csource=csource, nsource=nsource,
-                            surface=surface),
-                            code=SURFACE_CALLBACK_SCRIPT)
-
-# buttons for 3D surface
-surface_radio_group = RadioButtonGroup(labels=['b(j,s,t)', 'c(j,s,t)',
-                                               'n(j,s,t)'],
-                                       active=0,
-                                       callback=surface_callback)
-surface_callback.args['surface_radio_group'] = surface_radio_group
 
 # 2D PLOT
 # create 2d plot buttons
@@ -247,6 +238,12 @@ slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
 time_slider = Slider(start=0, end=time_periods-1, value=0, step=1,
                      title='Time period', callback=slider_callback)
 slider_callback.args['time'] = time_slider
+
+# buttons for 3D surface
+surface_radio_group = RadioButtonGroup(labels=['b(j,s,t)', 'c(j,s,t)',
+                                               'n(j,s,t)'],
+                                       active=0,
+                                       callback=slider_callback)
 slider_callback.args['surface_radio_group'] = surface_radio_group
 
 # create layout to place all items
