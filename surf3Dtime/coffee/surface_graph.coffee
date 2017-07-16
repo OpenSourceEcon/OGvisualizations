@@ -18,8 +18,8 @@ OPTIONS =
   xLabel: 'age-s'
   yLabel: 'ability-j'
   zLabel: 'indiv. savings-b'
-  zMin: -20
-  zMax: 50
+  zMin: -25
+  zMax: 60
 
 export class Surface3dView extends LayoutDOMView
 
