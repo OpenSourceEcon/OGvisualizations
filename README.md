@@ -3,6 +3,5 @@ Visualizations from large-scale overlapping generations model
 
 ### How to run:
 * Clone repository
-* `cd surf3Dtime/`
 * `pip install -r requirements.txt`
-* `bokeh serve --show 3Dvis.py`
+* `bokeh serve --show surf3Dtime/3Dvis.py`

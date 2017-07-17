@@ -2,10 +2,9 @@ import * as p from "core/properties"
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 
 # This defines some default options for the Graph3d feature of vis.js
-# See: http://visjs.org/graph3d_examples.html for more details.
 OPTIONS =
   width:  '450px'
-  height: '450px'
+  height: '375px'
   style: 'surface'
   showPerspective: true
   showGrid: true
@@ -19,8 +18,8 @@ OPTIONS =
   xLabel: 'age-s'
   yLabel: 'ability-j'
   zLabel: 'indiv. savings-b'
-  zMin: -20
-  zMax: 50
+  zMin: -25
+  zMax: 60
 
 export class Surface3dView extends LayoutDOMView
 
