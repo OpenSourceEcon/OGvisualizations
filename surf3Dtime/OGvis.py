@@ -67,6 +67,25 @@ npath_source = ColumnDataSource(data=dict(npath=npath_ravel))
 
 # information about data for slider
 time_periods = b_path.shape[0]
+
+rpath_value = tpi_vars['rpath']
+wpath_value = tpi_vars['wpath']
+kpath_value = tpi_vars['Kpath']
+lpath_value = tpi_vars['Lpath']
+ypath_value = tpi_vars['Ypath']
+cpath_value = tpi_vars['Cpath']
+line_paths = [rpath_value, wpath_value, kpath_value, lpath_value, ypath_value,
+              cpath_value]
+
+for path in line_paths:
+    for i in range(len(path)-1):
+        if abs((path[i+1]-path[i])/path[i+1]) < 0.000001:
+            if path[0] == rpath_value[0]:
+                time_periods = i
+            elif time_periods < i:
+                time_periods = i
+            break
+
 num_abilities = len(lambdas)
 variables = [time_periods, S, num_abilities]
 paths = [b_path.ravel(), c_path.ravel(), n_path.ravel()]
@@ -142,13 +161,13 @@ two_d_all_source = ColumnDataSource(data=dict(b_path=b_path, c_path=c_path,
 
 # LINE GRAPH
 # line graph for rpath initially
-rpath = tpi_vars['rpath'][:time_periods]
+rpath_value = rpath_value[:time_periods]
 time = range(time_periods)
 circle_color = ['#3288bd'] + ['white']*(time_periods-1)
-line_plot_source = ColumnDataSource(data=dict(x=time, y=rpath,
+line_plot_source = ColumnDataSource(data=dict(x=time, y=rpath_value,
                                     circle_color=circle_color))
 line_plot = figure(title='Time path for real interest rate r',
-                   plot_width=700, plot_height=300)
+                   plot_width=600, plot_height=300)
 line_plot.xaxis.axis_label = 'Period t'
 line_plot.yaxis.axis_label = 'real interest rate r'
 line_plot.line('x', 'y', line_width=2, source=line_plot_source)
@@ -156,17 +175,17 @@ line_plot.circle('x', 'y', fill_color='circle_color', size=8,
                  source=line_plot_source)
 
 # the other path data for the other line plots
-rpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['rpath'][:time_periods],
+rpath = ColumnDataSource(data=dict(x=time, y=rpath_value[:time_periods],
                                    circle_color=circle_color))
-wpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['wpath'][:time_periods],
+wpath = ColumnDataSource(data=dict(x=time, y=wpath_value[:time_periods],
                                    circle_color=circle_color))
-kpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Kpath'][:time_periods],
+kpath = ColumnDataSource(data=dict(x=time, y=kpath_value[:time_periods],
                                    circle_color=circle_color))
-lpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Lpath'][:time_periods],
+lpath = ColumnDataSource(data=dict(x=time, y=lpath_value[:time_periods],
                                    circle_color=circle_color))
-ypath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Ypath'][:time_periods],
+ypath = ColumnDataSource(data=dict(x=time, y=ypath_value[:time_periods],
                                    circle_color=circle_color))
-cpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Cpath'][:time_periods],
+cpath = ColumnDataSource(data=dict(x=time, y=cpath_value[:time_periods],
                                    circle_color=circle_color))
 
 # callback for the line graph
@@ -253,7 +272,7 @@ slider_callback.args['surface_radio_group'] = surface_radio_group
 layout = gridplot(
     children=[[surface], [widgetbox(surface_radio_group)],
               [line_plot, two_d_plot],
-              [widgetbox(line_radio_group, width=725),
+              [widgetbox(line_radio_group, width=625),
                widgetbox(two_d_radio_group)],
               [widgetbox(time_slider)]],
     toolbar_location=None
