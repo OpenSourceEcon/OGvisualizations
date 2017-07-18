@@ -65,12 +65,25 @@ nsource = ColumnDataSource(data=dict(x=smat, y=jmat, z=nvalue, color=nvalue))
 npath_ravel = n_path.ravel()
 npath_source = ColumnDataSource(data=dict(npath=npath_ravel))
 
+# information about data for slider
+time_periods = b_path.shape[0]
+num_abilities = len(lambdas)
+variables = [time_periods, S, num_abilities]
+paths = [b_path.ravel(), c_path.ravel(), n_path.ravel()]
+for path in paths:
+    # lower bound for surface
+    lb = min(path) - 0.1*(max(path)-min(path))
+    variables.append(lb)
+    # upper bound for surface
+    ub = max(path) + 0.1*(max(path)-min(path))
+    variables.append(ub)
+data_info = ColumnDataSource(data=dict(variables=variables))
+
 # 3D SURFACE
 surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source)
 
 # 2D PLOT
 # create 2d plot
-num_abilities = len(lambdas)
 two_d_plot = figure(plot_width=600, plot_height=300,
                     title='Age path for individual savings b')
 two_d_plot_data = dict(x=sgrid)
@@ -129,7 +142,6 @@ two_d_all_source = ColumnDataSource(data=dict(b_path=b_path, c_path=c_path,
 
 # LINE GRAPH
 # line graph for rpath initially
-time_periods = b_path.shape[0]
 rpath = tpi_vars['rpath'][:time_periods]
 time = range(time_periods)
 circle_color = ['#3288bd'] + ['white']*(time_periods-1)
@@ -195,7 +207,8 @@ line_radio_group.on_click(line_radio_handler)
 
 # SLIDER
 # callback for both graphs from slider
-slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
+slider_callback = CustomJS(args=dict(source=source, data_info=data_info,
+                                     bpath_source=bpath_source,
                                      cpath_source=cpath_source,
                                      npath_source=npath_source,
                                      line_plot_source=line_plot_source,
@@ -233,8 +246,7 @@ two_d_radio_group.on_click(two_d_radio_handler)
 # buttons for 3D surface
 surface_radio_group = RadioButtonGroup(labels=['b(j,s,t)', 'c(j,s,t)',
                                                'n(j,s,t)'],
-                                       active=0,
-                                       callback=slider_callback)
+                                       active=0, callback=slider_callback)
 slider_callback.args['surface_radio_group'] = surface_radio_group
 
 # create layout to place all items
