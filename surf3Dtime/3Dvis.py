@@ -70,7 +70,7 @@ surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source)
 
 # 2D PLOT
 # create 2d plot
-num_abilities = 7
+num_abilities = len(lambdas)
 two_d_plot = figure(plot_width=600, plot_height=300,
                     title='Age path for individual savings b')
 two_d_plot_data = dict(x=sgrid)
@@ -81,8 +81,13 @@ two_d_plot_source = ColumnDataSource(two_d_plot_data)
 two_d_plot.xaxis.axis_label = 'age s'
 two_d_plot.yaxis.axis_label = 'indiv. savings b'
 
-legend_labels = ['0 - 25%', '25 - 50%', '50 - 70%', '70 - 80%', '80 - 90%',
-                 '90 - 99%', '99 - 100%']
+# create the legend
+legend_labels = []
+labels = np.append(0, lamcumsum)
+for i in range(num_abilities):
+    legend_labels.append(str(100*labels[i]) + ' - ' +
+                         str(100*labels[i+1]) + '%')
+
 line_styles = ['solid', 'dashed', 'dotted', 'dotdash', 'dashdot']
 line_colors = ['#3288bd', '#009900', '#552A86', '#fee08b', '#fc8d59']
 glyph_list = []
@@ -116,7 +121,6 @@ for i in range(len(legend_labels)):
     legend_items.append((legend_labels[i], glyph_list[i]))
 
 legend = Legend(items=legend_items, location=(10, -30))
-
 two_d_plot.add_layout(legend, 'right')
 
 # two d plot sources
@@ -125,7 +129,7 @@ two_d_all_source = ColumnDataSource(data=dict(b_path=b_path, c_path=c_path,
 
 # LINE GRAPH
 # line graph for rpath initially
-time_periods = 359
+time_periods = b_path.shape[0]
 rpath = tpi_vars['rpath'][:time_periods]
 time = range(time_periods)
 circle_color = ['#3288bd'] + ['white']*(time_periods-1)
