@@ -1,21 +1,24 @@
 SLIDER_CALLBACK_SCRIPT = """
 var data = source.data;
 var kdata = line_plot_source.data;
+var data_info = data_info.data['variables'];
 
 var time = time.value;
 var button = surface_radio_group.active;
 var two_d_button = two_d_radio_group.active;
 
-var time_periods = 359;
-var num_ages = 80;
-var num_abilities = 7;
+var time_periods = data_info[0];
+var num_ages = data_info[1];
+var num_abilities = data_info[2];
 var plot_points = num_ages*num_abilities;
 
 if (button == '0') {
     var bpath = bpath_source.data;
 
-    window.surface_graph.setOptions({zLabel: 'indiv. savings-b', zMin: -20,
-    zMax: 60})
+    window.surface_graph.setOptions({
+        zLabel: 'indiv. savings-b',
+        zMin: data_info[3],
+        zMax: data_info[4]})
 
     x = data['x'];
     y = data['y'];
@@ -34,8 +37,10 @@ if (button == '0') {
 if (button == '1') {
     var cpath = cpath_source.data;
 
-    window.surface_graph.setOptions({zLabel: 'indiv. consumption-c', zMin: 0,
-    zMax: 6})
+    window.surface_graph.setOptions({
+        zLabel: 'indiv. consumption-c',
+        zMin: data_info[5],
+        zMax: data_info[6]})
 
     x = data['x'];
     y = data['y'];
@@ -56,8 +61,8 @@ if (button == '2') {
 
     window.surface_graph.setOptions({
         zLabel: 'labor supply-n',
-        zMin: 0,
-        zMax: 1,
+        zMin: data_info[7],
+        zMax: data_info[8],
     });
 
     x = data['x'];

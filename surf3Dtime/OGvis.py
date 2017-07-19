@@ -65,12 +65,45 @@ nsource = ColumnDataSource(data=dict(x=smat, y=jmat, z=nvalue, color=nvalue))
 npath_ravel = n_path.ravel()
 npath_source = ColumnDataSource(data=dict(npath=npath_ravel))
 
+# information about data for slider
+time_periods = b_path.shape[0]
+
+rpath_value = tpi_vars['rpath']
+wpath_value = tpi_vars['wpath']
+kpath_value = tpi_vars['Kpath']
+lpath_value = tpi_vars['Lpath']
+ypath_value = tpi_vars['Ypath']
+cpath_value = tpi_vars['Cpath']
+line_paths = [rpath_value, wpath_value, kpath_value, lpath_value, ypath_value,
+              cpath_value]
+
+for path in line_paths:
+    for i in range(len(path)-1):
+        if abs((path[i+1]-path[i])/path[i+1]) < 0.000001:
+            if path[0] == rpath_value[0]:
+                time_periods = i
+            elif time_periods < i:
+                time_periods = i
+            break
+
+num_abilities = len(lambdas)
+variables = [time_periods, S, num_abilities]
+paths = [b_path.ravel(), c_path.ravel(), n_path.ravel()]
+for path in paths:
+    # lower bound for surface plot
+    lb = min(path) - 0.1*(max(path)-min(path))
+    variables.append(lb)
+    # upper bound for surface plot
+    ub = max(path) + 0.1*(max(path)-min(path))
+    variables.append(ub)
+
+data_info = ColumnDataSource(data=dict(variables=variables))
+
 # 3D SURFACE
 surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source)
 
 # 2D PLOT
 # create 2d plot
-num_abilities = 7
 two_d_plot = figure(plot_width=600, plot_height=300,
                     title='Age path for individual savings b')
 two_d_plot_data = dict(x=sgrid)
@@ -81,42 +114,52 @@ two_d_plot_source = ColumnDataSource(two_d_plot_data)
 two_d_plot.xaxis.axis_label = 'age s'
 two_d_plot.yaxis.axis_label = 'indiv. savings b'
 
-legend_labels = ['0 - 25%', '25 - 50%', '50 - 70%', '70 - 80%', '80 - 90%',
-                 '90 - 99%', '99 - 100%']
-line_styles = ['solid', 'dashed', 'dotted', 'dotdash', 'dashdot']
-line_colors = ['#3288bd', '#009900', '#552A86', '#fee08b', '#fc8d59']
-glyph_list = []
+# create the legend
+legend_labels = []
+labels = np.append(0, lamcumsum)
+for i in range(num_abilities):
+    legend_labels.append(str(100*labels[i]) + ' - ' +
+                         str(100*labels[i+1]) + '%')
+
+line_styles = ['solid', 'dashed', 'dotted']
+line_colors = ['#3288bd', '#009900', '#D49C0E', '#8418C7', '#fc8d59']
+line_shapes = ['circle', 'square', 'triangle']
+glyphs = []
 for j in range(num_abilities):
     y = 'y_' + str(j)
-    if j <= 4:
-        glyph_list.append([two_d_plot.line('x', y, line_dash=line_styles[j],
-                                           line_color=line_colors[j],
-                                           line_width=2,
-                                           source=two_d_plot_source)])
-    if j == 5:
-        square_list = []
-        square_list.append(two_d_plot.square('x', y, fill_color=None,
-                                             line_color=line_colors[j-5],
-                                             source=two_d_plot_source))
-        square_list.append(two_d_plot.line('x', y, line_color=line_colors[j-5],
+
+    if j % 4 == 0:
+        shape = []
+        if line_shapes[j % 3] == 'square':
+            shape.append(two_d_plot.square('x', y, fill_color=None,
+                                           line_color=line_colors[j % 5],
                                            source=two_d_plot_source))
-        glyph_list.append(square_list)
-    if j == 6:
-        circle_list = []
-        circle_list.append(two_d_plot.circle('x', y,
-                                             fill_color=line_colors[j-5],
-                                             line_color=line_colors[j-5],
-                                             source=two_d_plot_source))
-        circle_list.append(two_d_plot.line('x', y, line_color=line_colors[j-5],
+        elif line_shapes[j % 3] == 'circle':
+            shape.append(two_d_plot.circle('x', y,
+                                           fill_color=line_colors[j % 5],
+                                           line_color=line_colors[j % 5],
                                            source=two_d_plot_source))
-        glyph_list.append(circle_list)
+        elif line_shapes[j % 3] == 'triangle':
+            shape.append(two_d_plot.triangle('x', y,
+                                             fill_color=line_colors[j % 5],
+                                             line_color=line_colors[j % 5],
+                                             source=two_d_plot_source))
+        shape.append(two_d_plot.line('x', y, line_color=line_colors[j % 5],
+                                     source=two_d_plot_source))
+        glyphs.append(shape)
+
+    else:
+        glyphs.append([two_d_plot.line('x', y,
+                                       line_dash=line_styles[(j % 4)-1],
+                                       line_color=line_colors[j % 5],
+                                       line_width=2,
+                                       source=two_d_plot_source)])
 
 legend_items = []
 for i in range(len(legend_labels)):
-    legend_items.append((legend_labels[i], glyph_list[i]))
+    legend_items.append((legend_labels[i], glyphs[i]))
 
 legend = Legend(items=legend_items, location=(10, -30))
-
 two_d_plot.add_layout(legend, 'right')
 
 # two d plot sources
@@ -125,14 +168,13 @@ two_d_all_source = ColumnDataSource(data=dict(b_path=b_path, c_path=c_path,
 
 # LINE GRAPH
 # line graph for rpath initially
-time_periods = 359
-rpath = tpi_vars['rpath'][:time_periods]
+rpath_value = rpath_value[:time_periods]
 time = range(time_periods)
 circle_color = ['#3288bd'] + ['white']*(time_periods-1)
-line_plot_source = ColumnDataSource(data=dict(x=time, y=rpath,
+line_plot_source = ColumnDataSource(data=dict(x=time, y=rpath_value,
                                     circle_color=circle_color))
 line_plot = figure(title='Time path for real interest rate r',
-                   plot_width=700, plot_height=300)
+                   plot_width=600, plot_height=300)
 line_plot.xaxis.axis_label = 'Period t'
 line_plot.yaxis.axis_label = 'real interest rate r'
 line_plot.line('x', 'y', line_width=2, source=line_plot_source)
@@ -140,17 +182,17 @@ line_plot.circle('x', 'y', fill_color='circle_color', size=8,
                  source=line_plot_source)
 
 # the other path data for the other line plots
-rpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['rpath'][:time_periods],
+rpath = ColumnDataSource(data=dict(x=time, y=rpath_value[:time_periods],
                                    circle_color=circle_color))
-wpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['wpath'][:time_periods],
+wpath = ColumnDataSource(data=dict(x=time, y=wpath_value[:time_periods],
                                    circle_color=circle_color))
-kpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Kpath'][:time_periods],
+kpath = ColumnDataSource(data=dict(x=time, y=kpath_value[:time_periods],
                                    circle_color=circle_color))
-lpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Lpath'][:time_periods],
+lpath = ColumnDataSource(data=dict(x=time, y=lpath_value[:time_periods],
                                    circle_color=circle_color))
-ypath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Ypath'][:time_periods],
+ypath = ColumnDataSource(data=dict(x=time, y=ypath_value[:time_periods],
                                    circle_color=circle_color))
-cpath = ColumnDataSource(data=dict(x=time, y=tpi_vars['Cpath'][:time_periods],
+cpath = ColumnDataSource(data=dict(x=time, y=cpath_value[:time_periods],
                                    circle_color=circle_color))
 
 # callback for the line graph
@@ -191,7 +233,8 @@ line_radio_group.on_click(line_radio_handler)
 
 # SLIDER
 # callback for both graphs from slider
-slider_callback = CustomJS(args=dict(source=source, bpath_source=bpath_source,
+slider_callback = CustomJS(args=dict(source=source, data_info=data_info,
+                                     bpath_source=bpath_source,
                                      cpath_source=cpath_source,
                                      npath_source=npath_source,
                                      line_plot_source=line_plot_source,
@@ -229,15 +272,14 @@ two_d_radio_group.on_click(two_d_radio_handler)
 # buttons for 3D surface
 surface_radio_group = RadioButtonGroup(labels=['b(j,s,t)', 'c(j,s,t)',
                                                'n(j,s,t)'],
-                                       active=0,
-                                       callback=slider_callback)
+                                       active=0, callback=slider_callback)
 slider_callback.args['surface_radio_group'] = surface_radio_group
 
 # create layout to place all items
 layout = gridplot(
     children=[[surface], [widgetbox(surface_radio_group)],
               [line_plot, two_d_plot],
-              [widgetbox(line_radio_group, width=725),
+              [widgetbox(line_radio_group, width=625),
                widgetbox(two_d_radio_group)],
               [widgetbox(time_slider)]],
     toolbar_location=None
