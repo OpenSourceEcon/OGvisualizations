@@ -123,7 +123,7 @@ for i in range(num_abilities):
 
 line_styles = ['solid', 'dashed', 'dotted']
 line_colors = ['#3288bd', '#009900', '#D49C0E', '#8418C7', '#fc8d59']
-line_shapes = ['square', 'circle', 'triangle']
+line_shapes = ['circle', 'square', 'triangle']
 glyphs = []
 for j in range(num_abilities):
     y = 'y_' + str(j)
