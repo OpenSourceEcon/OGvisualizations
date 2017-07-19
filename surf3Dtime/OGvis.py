@@ -90,12 +90,13 @@ num_abilities = len(lambdas)
 variables = [time_periods, S, num_abilities]
 paths = [b_path.ravel(), c_path.ravel(), n_path.ravel()]
 for path in paths:
-    # lower bound for surface
+    # lower bound for surface plot
     lb = min(path) - 0.1*(max(path)-min(path))
     variables.append(lb)
-    # upper bound for surface
+    # upper bound for surface plot
     ub = max(path) + 0.1*(max(path)-min(path))
     variables.append(ub)
+
 data_info = ColumnDataSource(data=dict(variables=variables))
 
 # 3D SURFACE
@@ -120,37 +121,43 @@ for i in range(num_abilities):
     legend_labels.append(str(100*labels[i]) + ' - ' +
                          str(100*labels[i+1]) + '%')
 
-line_styles = ['solid', 'dashed', 'dotted', 'dotdash', 'dashdot']
-line_colors = ['#3288bd', '#009900', '#552A86', '#fee08b', '#fc8d59']
-glyph_list = []
+line_styles = ['solid', 'dashed', 'dotted']
+line_colors = ['#3288bd', '#009900', '#D49C0E', '#8418C7', '#fc8d59']
+line_shapes = ['square', 'circle', 'triangle']
+glyphs = []
 for j in range(num_abilities):
     y = 'y_' + str(j)
-    if j <= 4:
-        glyph_list.append([two_d_plot.line('x', y, line_dash=line_styles[j],
-                                           line_color=line_colors[j],
-                                           line_width=2,
-                                           source=two_d_plot_source)])
-    if j == 5:
-        square_list = []
-        square_list.append(two_d_plot.square('x', y, fill_color=None,
-                                             line_color=line_colors[j-5],
-                                             source=two_d_plot_source))
-        square_list.append(two_d_plot.line('x', y, line_color=line_colors[j-5],
+
+    if j % 4 == 0:
+        shape = []
+        if line_shapes[j % 3] == 'square':
+            shape.append(two_d_plot.square('x', y, fill_color=None,
+                                           line_color=line_colors[j % 5],
                                            source=two_d_plot_source))
-        glyph_list.append(square_list)
-    if j == 6:
-        circle_list = []
-        circle_list.append(two_d_plot.circle('x', y,
-                                             fill_color=line_colors[j-5],
-                                             line_color=line_colors[j-5],
-                                             source=two_d_plot_source))
-        circle_list.append(two_d_plot.line('x', y, line_color=line_colors[j-5],
+        elif line_shapes[j % 3] == 'circle':
+            shape.append(two_d_plot.circle('x', y,
+                                           fill_color=line_colors[j % 5],
+                                           line_color=line_colors[j % 5],
                                            source=two_d_plot_source))
-        glyph_list.append(circle_list)
+        elif line_shapes[j % 3] == 'triangle':
+            shape.append(two_d_plot.triangle('x', y,
+                                             fill_color=line_colors[j % 5],
+                                             line_color=line_colors[j % 5],
+                                             source=two_d_plot_source))
+        shape.append(two_d_plot.line('x', y, line_color=line_colors[j % 5],
+                                     source=two_d_plot_source))
+        glyphs.append(shape)
+
+    else:
+        glyphs.append([two_d_plot.line('x', y,
+                                       line_dash=line_styles[(j % 4)-1],
+                                       line_color=line_colors[j % 5],
+                                       line_width=2,
+                                       source=two_d_plot_source)])
 
 legend_items = []
 for i in range(len(legend_labels)):
-    legend_items.append((legend_labels[i], glyph_list[i]))
+    legend_items.append((legend_labels[i], glyphs[i]))
 
 legend = Legend(items=legend_items, location=(10, -30))
 two_d_plot.add_layout(legend, 'right')
