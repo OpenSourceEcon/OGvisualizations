@@ -77,6 +77,7 @@ cpath_value = tpi_vars['Cpath']
 line_paths = [rpath_value, wpath_value, kpath_value, lpath_value, ypath_value,
               cpath_value]
 
+# dynamically choose the number of time periods
 for path in line_paths:
     for i in range(len(path)-1):
         if abs((path[i+1]-path[i])/path[i+1]) < 0.000001:
@@ -86,6 +87,7 @@ for path in line_paths:
                 time_periods = i
             break
 
+# find upper and lower bounds for plots and create source for plotting
 num_abilities = len(lambdas)
 variables = [time_periods, S, num_abilities]
 paths = [b_path.ravel(), c_path.ravel(), n_path.ravel()]
@@ -96,7 +98,6 @@ for path in paths:
     # upper bound for surface plot
     ub = max(path) + 0.1*(max(path)-min(path))
     variables.append(ub)
-
 data_info = ColumnDataSource(data=dict(variables=variables))
 
 # 3D SURFACE
