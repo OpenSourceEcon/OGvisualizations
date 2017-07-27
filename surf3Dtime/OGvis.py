@@ -167,7 +167,8 @@ two_d_plot.add_layout(legend, 'right')
 two_d_all_source = ColumnDataSource(data=dict(b_path=b_path, c_path=c_path,
                                     n_path=n_path))
 two_d_object = ColumnDataSource(data=dict(yaxis=[two_d_plot.yaxis],
-                                          title=[two_d_plot.title], plot=[two_d_plot]))
+                                          title=[two_d_plot.title],
+                                          plot=[two_d_plot]))
 
 # LINE GRAPH
 # line graph for rpath initially
