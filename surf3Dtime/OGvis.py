@@ -5,8 +5,8 @@ import os
 from bokeh.core.properties import Instance, String
 from bokeh.models import ColumnDataSource, LayoutDOM, CustomJS, Slider, Legend
 from bokeh.layouts import layout, widgetbox, gridplot
-from bokeh.models.widgets import RadioButtonGroup
-from bokeh.plotting import figure, curdoc
+from bokeh.models.widgets import RadioButtonGroup, Paragraph
+from bokeh.plotting import figure, show
 
 from callbacks.line_callback_script import LINE_CALLBACK_SCRIPT
 from callbacks.slider_callback_script import SLIDER_CALLBACK_SCRIPT
@@ -166,6 +166,8 @@ two_d_plot.add_layout(legend, 'right')
 # two d plot sources
 two_d_all_source = ColumnDataSource(data=dict(b_path=b_path, c_path=c_path,
                                     n_path=n_path))
+two_d_object = ColumnDataSource(data=dict(yaxis=[two_d_plot.yaxis],
+                                          title=[two_d_plot.title], plot=[two_d_plot]))
 
 # LINE GRAPH
 # line graph for rpath initially
@@ -196,41 +198,22 @@ ypath = ColumnDataSource(data=dict(x=time, y=ypath_value[:time_periods],
 cpath = ColumnDataSource(data=dict(x=time, y=cpath_value[:time_periods],
                                    circle_color=circle_color))
 
+line_object = ColumnDataSource(data=dict(yaxis=[line_plot.yaxis],
+                                         title=[line_plot.title]))
+
 # callback for the line graph
 line_callback = CustomJS(args=dict(line_plot_source=line_plot_source,
                                    rpath=rpath, wpath=wpath, kpath=kpath,
-                                   lpath=lpath, ypath=ypath, cpath=cpath),
+                                   lpath=lpath, ypath=ypath, cpath=cpath,
+                                   line_object=line_object),
                          code=LINE_CALLBACK_SCRIPT)
-
-
-# change the text for the line plot depending on data source
-def line_radio_handler(new):
-    if new == 0:
-        line_plot.title.text = 'Time path for real interest rate r'
-        line_plot.yaxis.axis_label = 'real interest rate r'
-    elif new == 1:
-        line_plot.title.text = 'Time path for real wage w'
-        line_plot.yaxis.axis_label = 'real wage w'
-    elif new == 2:
-        line_plot.title.text = 'Time path for aggregate capital stock K'
-        line_plot.yaxis.axis_label = 'aggregate capital K'
-    elif new == 3:
-        line_plot.title.text = 'Time path for aggregate labor L'
-        line_plot.yaxis.axis_label = 'aggregate labor L'
-    elif new == 4:
-        line_plot.title.text = 'Time path for aggregate output (GDP) Y'
-        line_plot.yaxis.axis_label = 'aggregate output Y'
-    elif new == 5:
-        line_plot.title.text = 'Time path for aggregate consumption C'
-        line_plot.yaxis.axis_label = 'aggregate consumption C'
-
 
 # create buttons for line graph
 line_radio_group = RadioButtonGroup(labels=['r(t)', 'w(t)', 'K(t)', 'L(t)',
                                             'Y(t)', 'C(t)'],
                                     active=0, callback=line_callback)
 line_callback.args['line_radio_group'] = line_radio_group
-line_radio_group.on_click(line_radio_handler)
+# line_radio_group.on_click(line_radio_handler)
 
 # SLIDER
 # callback for both graphs from slider
@@ -240,7 +223,8 @@ slider_callback = CustomJS(args=dict(source=source, data_info=data_info,
                                      npath_source=npath_source,
                                      line_plot_source=line_plot_source,
                                      two_d_plot_source=two_d_plot_source,
-                                     two_d_all_source=two_d_all_source),
+                                     two_d_all_source=two_d_all_source,
+                                     two_d_object=two_d_object),
                            code=SLIDER_CALLBACK_SCRIPT)
 
 # time slider
@@ -254,31 +238,21 @@ two_d_radio_group = RadioButtonGroup(labels=['b(j,s,t)', 'c(j,s,t)',
                                      callback=slider_callback)
 slider_callback.args['two_d_radio_group'] = two_d_radio_group
 
-
-# listener and function for altering the 2D plot
-def two_d_radio_handler(new):
-    if new == 0:
-        two_d_plot.title.text = 'Age path for individual savings b'
-        two_d_plot.yaxis.axis_label = 'indiv. savings b'
-    if new == 1:
-        two_d_plot.title.text = 'Age path for individual consumption c'
-        two_d_plot.yaxis.axis_label = 'indiv. consumption c'
-    if new == 2:
-        two_d_plot.title.text = 'Age path for labor supply n'
-        two_d_plot.yaxis.axis_label = 'labor supply n'
-
-
-two_d_radio_group.on_click(two_d_radio_handler)
-
 # buttons for 3D surface
 surface_radio_group = RadioButtonGroup(labels=['b(j,s,t)', 'c(j,s,t)',
                                                'n(j,s,t)'],
                                        active=0, callback=slider_callback)
 slider_callback.args['surface_radio_group'] = surface_radio_group
 
+# paragraph for explanation
+p = Paragraph(text="""The 3D surface shows the relationship between age,
+ability, and either inidividual savings, consumption, or labor supply over
+time.""", width=200, height=200)
+
 # create layout to place all items
 layout = gridplot(
-    children=[[surface], [widgetbox(surface_radio_group)],
+    children=[[surface, widgetbox(p)],
+              [widgetbox(surface_radio_group)],
               [line_plot, two_d_plot],
               [widgetbox(line_radio_group, width=625),
                widgetbox(two_d_radio_group)],
@@ -287,4 +261,4 @@ layout = gridplot(
 )
 
 # add the layout to the document
-curdoc().add_root(layout)
+show(layout)

@@ -3,5 +3,6 @@ Visualizations from large-scale overlapping generations model
 
 ### How to run:
 * Clone repository
+* Navigate into `OGvisualizations/`
 * `pip install -r requirements.txt`
-* `bokeh serve --show surf3Dtime/OGvis.py`
+* `python3 surf3Dtime/OGvis.py`
