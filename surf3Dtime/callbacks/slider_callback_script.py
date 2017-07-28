@@ -5,7 +5,6 @@ var data_info = data_info.data['variables'];
 
 var time = time.value;
 var button = surface_radio_group.active;
-var two_d_button = two_d_radio_group.active;
 
 var time_periods = data_info[0];
 var num_ages = data_info[1];
@@ -81,12 +80,18 @@ if (button == '2') {
 
 var two_d_data = two_d_plot_source.data
 var two_d_all_source = two_d_all_source.data;
+var two_d_button = two_d_radio_group.active;
+var two_d_object = two_d_object.data;
 
 var b_path = two_d_all_source['b_path'];
 var c_path = two_d_all_source['c_path'];
 var n_path = two_d_all_source['n_path'];
 
 if (two_d_button == '0') {
+    two_d_object.title[0].attributes.text =
+        'Age path for individual savings b';
+    two_d_object.yaxis[0][0].attributes.axis_label = 'indiv. savings b';
+
     for (j = 0; j < num_abilities; j++) {
         beg = num_ages*j + num_ages*num_abilities*time;
         end = num_ages*(j+1) + num_ages*num_abilities*time;
@@ -101,6 +106,10 @@ if (two_d_button == '0') {
 }
 
 if (two_d_button == '1') {
+    two_d_object.title[0].attributes.text =
+        'Age path for individual consumption c';
+    two_d_object.yaxis[0][0].attributes.axis_label = 'indiv. consumption c';
+
     for (j = 0; j < num_abilities; j++) {
         beg = num_ages*j + num_ages*num_abilities*time;
         end = num_ages*(j+1) + num_ages*num_abilities*time;
@@ -115,6 +124,9 @@ if (two_d_button == '1') {
 }
 
 if (two_d_button == '2') {
+    two_d_object.title[0].attributes.text = 'Age path for labor supply n';
+    two_d_object.yaxis[0][0].attributes.axis_label = 'labor supply n';
+
     for (j = 0; j < num_abilities; j++) {
         beg = num_ages*j + num_ages*num_abilities*time;
         end = num_ages*(j+1) + num_ages*num_abilities*time;
