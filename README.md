@@ -5,4 +5,4 @@ Visualizations from large-scale overlapping generations model
 * Clone repository
 * Navigate into `OGvisualizations/`
 * `pip install -r requirements.txt`
-* `python3 surf3Dtime/OGvis.py`
+* `python3 surf3Dtime/main.py`
