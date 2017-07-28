@@ -3,8 +3,8 @@ import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 
 # This defines some default options for the Graph3d feature of vis.js
 OPTIONS =
-  width:  '450px'
-  height: '375px'
+  width:  '600px'
+  height: '390px'
   style: 'surface'
   showPerspective: true
   showGrid: true
@@ -14,7 +14,7 @@ OPTIONS =
   cameraPosition:
     horizontal: -0.35
     vertical: 0.22
-    distance: 2.0
+    distance: 2.6
   xLabel: 'age-s'
   yLabel: 'ability-j'
   zLabel: 'indiv. savings-b'
