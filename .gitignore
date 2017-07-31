@@ -31,3 +31,4 @@ dist/*
 *.dta
 *.dat
 *.zip
+.env

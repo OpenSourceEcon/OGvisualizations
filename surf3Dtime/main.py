@@ -1,15 +1,22 @@
 import numpy as np
 import pickle
 import os
+import sys
 
 from bokeh.core.properties import Instance, String
 from bokeh.models import ColumnDataSource, LayoutDOM, CustomJS, Slider, Legend
 from bokeh.layouts import layout, widgetbox, gridplot, column
 from bokeh.models.widgets import RadioButtonGroup, Div
 from bokeh.plotting import figure, show
+from bokeh.embed import components
+from bokeh.resources import CDN
 
-from callbacks.line_callback_script import LINE_CALLBACK_SCRIPT
-from callbacks.slider_callback_script import SLIDER_CALLBACK_SCRIPT
+if 'show' in sys.argv:
+    from callbacks.line_callback_script import LINE_CALLBACK_SCRIPT
+    from callbacks.slider_callback_script import SLIDER_CALLBACK_SCRIPT
+else:
+    from surf3Dtime.callbacks.line_callback_script import LINE_CALLBACK_SCRIPT
+    from surf3Dtime.callbacks.slider_callback_script import SLIDER_CALLBACK_SCRIPT
 
 
 class Surface3d(LayoutDOM):
@@ -262,4 +269,9 @@ layout = gridplot(
     toolbar_location=None
 )
 
-show(layout)
+js, div = components(layout)
+cdn_js = CDN.js_files[0]
+cdn_css = CDN.css_files[0]
+
+if 'show' in sys.argv:
+    show(layout)

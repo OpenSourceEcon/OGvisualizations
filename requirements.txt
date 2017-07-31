@@ -1,2 +1,7 @@
 bokeh==0.12.6
 numpy==1.13.0
+dj-database-url==0.4.1
+Django==1.11.1
+gunicorn==19.6.0
+psycopg2==2.6.2
+whitenoise==3.2
