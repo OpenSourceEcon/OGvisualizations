@@ -1,0 +1,27 @@
+body {
+  background-color: #F7F7F7;
+}
+
+.og-navbar {
+  background-color: #8b0021;
+}
+
+.feature {
+  background-color: #ffffff;
+  padding: 10px;
+}
+
+.feature:hover {
+  text-decoration: none;
+}
+
+.feature-picture {
+}
+
+.feature-article {
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+}

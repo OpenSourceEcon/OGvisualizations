@@ -9,6 +9,8 @@
   <link
     href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.6.min.css"
     rel="stylesheet" type="text/css">
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'OGvis/style.css' %}">
   <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.6.min.js">
     </script>
 </head>
@@ -17,7 +19,7 @@
 
 <body>
 
-<nav class="navbar navbar-default" style= "background-color:#8b0021">
+<nav class="navbar navbar-default og-navbar">
   <div class="container-fluid">
     <div class="navbar-header">
       <a href="/" class=“navbar-brand”>
@@ -35,7 +37,7 @@
 
 </div>
 
-<div class="text-center" style="padding-right:50px;padding-left:50px;padding-bottom:50px;">
+<div class="text-center vis-div">
 
   {{ div|safe }}
   {{ js|safe }}
