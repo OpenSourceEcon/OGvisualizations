@@ -15,11 +15,22 @@
   <nav class="navbar navbar-default og-navbar">
     <div class="container-fluid">
       <div class="navbar-header">
+        <a class="navbar-brand" href="/">
+          <img src="{% static 'shared/osm-icon.png' %}"/>
+        </a>
       </div>
+
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+          <a class="navbar-brand" href="https://github.com/OpenSourceMacro/OGvisualizations">
+            <img src="{% static 'shared/GitHub-Mark.png'%}"/>
+          </a>
+        </li>
+      </ul>
     </div>
   </nav>
 
-  <h1> Open Source Macroeconomics Laboratory </h1>
+  <h1 class="text-center"> Open Source Macroeconomics Laboratory </h1>
 
   <div class="row">
     <a class="feature col-md-6 col-md-offset-3" href="/surf3Dtime">
