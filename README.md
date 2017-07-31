@@ -1,8 +1,7 @@
 # OGvisualizations
 Visualizations from large-scale overlapping generations model
 
-### How to run:
+### How to view surf3Dtime visualization:
 * Clone repository
-* Navigate into `OGvisualizations/`
 * `pip install -r requirements.txt`
-* `python3 surf3Dtime/main.py`
+* `python surf3Dtime/main.py show`
