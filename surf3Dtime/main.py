@@ -114,7 +114,7 @@ surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source,
 # 2D PLOT
 # create 2d plot
 two_d_plot = figure(plot_width=600, plot_height=300,
-                    title='Age path for individual savings b')
+                    title='Age path for individual savings b by ability')
 two_d_plot_data = dict(x=sgrid)
 for j in range(num_abilities):
     two_d_plot_data['y_' + str(j)] = b_path[:, j][0]

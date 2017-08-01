@@ -89,7 +89,7 @@ var n_path = two_d_all_source['n_path'];
 
 if (two_d_button == '0') {
     two_d_object.title[0].attributes.text =
-        'Age path for individual savings b';
+        'Age path for individual savings b by ability';
     two_d_object.yaxis[0][0].attributes.axis_label = 'indiv. savings b';
 
     for (j = 0; j < num_abilities; j++) {
@@ -107,7 +107,7 @@ if (two_d_button == '0') {
 
 if (two_d_button == '1') {
     two_d_object.title[0].attributes.text =
-        'Age path for individual consumption c';
+        'Age path for individual consumption c by ability';
     two_d_object.yaxis[0][0].attributes.axis_label = 'indiv. consumption c';
 
     for (j = 0; j < num_abilities; j++) {
@@ -124,7 +124,7 @@ if (two_d_button == '1') {
 }
 
 if (two_d_button == '2') {
-    two_d_object.title[0].attributes.text = 'Age path for labor supply n';
+    two_d_object.title[0].attributes.text = 'Age path for labor supply n by ability';
     two_d_object.yaxis[0][0].attributes.axis_label = 'labor supply n';
 
     for (j = 0; j < num_abilities; j++) {
