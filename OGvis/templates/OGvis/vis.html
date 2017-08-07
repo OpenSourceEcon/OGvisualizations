@@ -7,35 +7,42 @@
   <link rel='stylesheet' href={{cdn_css|safe}} type="text/css"/>
   <script type="text/javascript" src={{cdn_js|safe}}></script>
   <link
-    href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.6.min.css"
+    href="https://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.6.min.css"
     rel="stylesheet" type="text/css">
-  <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.6.min.js">
-    </script>
+  <script src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.6.min.js"></script>
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'OGvis/style.css' %}">
 </head>
 
 <html>
-
 <body>
 
-<nav class="navbar navbar-default" style= "background-color:#8b0021">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a href="/" class=“navbar-brand”>
-        <button type="button" class="btn btn-default btn-sm navbar-btn">
-          <span class="glyphicon glyphicon-chevron-left"></span> Home
-        </button>
-      </a>
+  <nav class="navbar navbar-default og-navbar">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">
+          <img src="{% static 'shared/osm-icon.png' %}"/>
+        </a>
+      </div>
+
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+          <a class="navbar-brand" target="_blank" href="https://github.com/OpenSourceMacro/OGvisualizations">
+            <img src="{% static 'shared/github-icon.png'%}"/>
+          </a>
+        </li>
+        <li>
+          <a class="navbar-brand" target="_blank" href="https://twitter.com/OpenSourceMacro">
+            <img src="{% static 'shared/twitter-icon.png'%}"/>
+          </a>
+        </li>
+      </ul>
     </div>
-  </div>
-</nav>
+  </nav>
 
-<div class="text-center">
+<h1 class="text-center"> Operlapping Generations Model Visualization </h1>
 
-	<h1> Operlapping Generations Model Visualization </h1>
-
-</div>
-
-<div class="text-center" style="padding-right:50px;padding-left:50px;padding-bottom:50px;">
+<div class="text-center vis-div">
 
   {{ div|safe }}
   {{ js|safe }}
