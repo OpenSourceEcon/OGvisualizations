@@ -254,15 +254,23 @@ surface_radio_group = RadioButtonGroup(labels=['b(j,s,t)', 'c(j,s,t)',
 slider_callback.args['surface_radio_group'] = surface_radio_group
 
 # paragraph for explanation
-p = Div(text="""<b>The 3D surface shows the relationship between age,
+p1 = Div(text="""<b>The 3D surface shows the relationship between age,
 ability, and either inidividual savings, consumption, or labor supply over
-time.</b>""", width=400, height=100)
+time.</b>""", width=400, height=50)
+
+p2 = Div(text="""<b>The time path plot shows the movement of real interest rate,
+real wage, aggregate capital stock, aggregate labor, aggregate output, and
+aggregate consumption over time.</b>""", width=400, height=50)
+
+p3 = Div(text="""<b>The age path plot shows individual savings, individual
+consumption, and labor supply divided by ability across age.</b>""", width=400,
+         height=50)
 
 # create layout to place all items
 surface_column = column(surface, surface_radio_group)
 two_d_column = column(two_d_plot, two_d_radio_group)
 line_column = column(line_plot, line_radio_group)
-slider_column = column(p, time_slider)
+slider_column = column(p1, p2, p3, time_slider)
 layout = gridplot(
     children=[[surface_column, slider_column],
               [line_column, two_d_column]],
