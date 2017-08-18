@@ -18,8 +18,8 @@ OPTIONS =
   xLabel: 'Total Labor Income'
   yLabel: 'Total Capital Income'
   zLabel: 'Percent of Obs.'
-  xBarWidth: 100
-  yBarWidth: 100
+  xBarWidth: 7500
+  yBarWidth: 7500
 
 export class Surface3dView extends LayoutDOMView
 
