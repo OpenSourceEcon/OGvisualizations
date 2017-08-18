@@ -1,8 +1,10 @@
 from bokeh.plotting import show
-from bokeh.models import ColumnDataSource, LayoutDOM
+from bokeh.models import ColumnDataSource, LayoutDOM, CustomJS
 from bokeh.core.properties import Instance, String
-from bokeh.layouts import column, layout
+from bokeh.layouts import column, gridplot
+from bokeh.models.widgets import RadioButtonGroup
 from txrates import clean_data
+from callbacks.scatter_button_callback_script import SCATTER_BUTTON_CALLBACK_SCRIPT
 import pickle
 import numpy as np
 
@@ -44,7 +46,7 @@ age = 42
 df = microDataDict_base_clean[str(year)]
 df = df[df['Age'] == age]
 
-# Truncate the data
+# Truncate the data and prepare for scatter plot
 df_trnc = df[(df['Total Labor Income'] > 5) &
              (df['Total Labor Income'] < 500000) &
              (df['Total Capital Income'] > 5) &
@@ -54,10 +56,12 @@ inc_cap = df_trnc['Total Capital Income']
 etr_data = df_trnc['Effective Tax Rate']
 mtrx_data = df_trnc['MTR Labor Income']
 mtry_data = df_trnc['MTR capital income']
-
 scatter_source = ColumnDataSource(data=dict(x=inc_lab, y=inc_cap, z=etr_data))
+etr_source = ColumnDataSource(data=dict(z=etr_data))
+mtrx_source = ColumnDataSource(data=dict(z=mtrx_data))
+mtry_source = ColumnDataSource(data=dict(z=mtry_data))
 
-# Prepare data for histogram
+# Prepare data for bar plot
 bin_num = int(30)
 hist, xedges, yedges = np.histogram2d(inc_lab, inc_cap,
                                       bins=bin_num)
@@ -68,7 +72,6 @@ ypos, xpos = np.meshgrid(y_midp, x_midp)
 xpos = xpos.flatten()
 ypos = ypos.flatten()
 dz = hist.flatten()
-
 bar_source = ColumnDataSource(data=dict(x=xpos, y=ypos, z=dz))
 
 # scatter 3D
@@ -79,5 +82,21 @@ scatter = Scatter3d(x="x", y="y", z="z", color="color",
 bar = Bar3d(x="x", y="y", z="z", color="color", data_source=bar_source,
             width=800, height=370)
 
+# create buttons/callback for scatter 3D
+scatter_button_callback = CustomJS(args=dict(scatter_source=scatter_source,
+                                             etr_source=etr_source,
+                                             mtrx_source=mtrx_source,
+                                             mtry_source=mtry_source),
+                                   code=SCATTER_BUTTON_CALLBACK_SCRIPT)
+scatter_buttons = RadioButtonGroup(labels=['ETR', 'MTR(x)', 'MTR(y)'],
+                                   active=0, callback=scatter_button_callback)
+scatter_button_callback.args['scatter_buttons'] = scatter_buttons
+
+# create layout and show!
 column_3d = column(scatter, bar)
-show(column_3d)
+column_controls = column(scatter_buttons)
+layout = gridplot(
+    children=[[column_3d, column_controls]],
+    toolbar_location=None
+)
+show(layout)
