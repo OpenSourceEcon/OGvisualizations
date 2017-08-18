@@ -33,3 +33,4 @@ dist/*
 *.zip
 .env
 micro*.pkl
+main.html
