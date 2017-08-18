@@ -32,4 +32,4 @@ dist/*
 *.dat
 *.zip
 .env
-micro_data*.pkl
+micro*.pkl
