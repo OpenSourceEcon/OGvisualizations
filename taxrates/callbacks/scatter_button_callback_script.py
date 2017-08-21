@@ -1,42 +1,46 @@
 SCATTER_BUTTON_CALLBACK_SCRIPT = """
 var button = scatter_buttons.active;
+var source = scatter_source.data;
 
 if (button == '0') {
-    var source = scatter_source.data;
-    var zdata = etr_source.data;
+    var etr_data = etr_source.data;
+    etr_zdata = etr_data['z']
 
-    x = source['x'];
-    y = source['y'];
-    z = source['z'];
+    window.scatter_graph.setOptions({
+        zLabel: 'Effective Tax Rate'
+    })
 
-    for (i = 0; i < z.length; i++) {
-        z[i] = zdata['z'][i];
+    for (i = 0; i < source['z'].length; i++) {
+        source['z'][i] = etr_zdata[i];
     }
+    scatter_source.change.emit();
 }
 
 if (button == '1') {
-    var source = scatter_source.data;
-    var zdata = mtrx_source.data;
+    var mtrx_data = mtrx_source.data;
+    mtrx_zdata = mtrx_data['z']
 
-    x = source['x'];
-    y = source['y'];
-    z = source['z'];
+    window.scatter_graph.setOptions({
+        zLabel: 'Marginal Tax Rate (labor inc.)'
+    })
 
-    for (i = 0; i < z.length; i++) {
-        z[i] = zdata['z'][i];
+    for (i = 0; i < source['z'].length; i++) {
+        source['z'][i] = mtrx_zdata[i];
     }
+    scatter_source.change.emit();
 }
 
 if (button == '2') {
-    var source = scatter_source.data;
-    var zdata = mtry_source.data;
+    var mtry_data = mtry_source.data;
+    mtry_zdata = mtry_data['z']
 
-    x = source['x'];
-    y = source['y'];
-    z = source['z'];
+    window.scatter_graph.setOptions({
+        zLabel: 'Marginal Tax Rate (capital inc.)'
+    })
 
-    for (i = 0; i < z.length; i++) {
-        z[i] = zdata['z'][i];
+    for (i = 0; i < source['z'].length; i++) {
+        source['z'][i] = mtry_zdata[i];
     }
+    scatter_source.change.emit();
 }
 """

@@ -7,6 +7,7 @@ from txrates import clean_data
 from callbacks.scatter_button_callback_script import SCATTER_BUTTON_CALLBACK_SCRIPT
 import pickle
 import numpy as np
+import pandas as pd
 
 
 class Scatter3d(LayoutDOM):
@@ -51,11 +52,11 @@ df_trnc = df[(df['Total Labor Income'] > 5) &
              (df['Total Labor Income'] < 500000) &
              (df['Total Capital Income'] > 5) &
              (df['Total Capital Income'] < 500000)]
-inc_lab = df_trnc['Total Labor Income']
-inc_cap = df_trnc['Total Capital Income']
-etr_data = df_trnc['Effective Tax Rate']
-mtrx_data = df_trnc['MTR Labor Income']
-mtry_data = df_trnc['MTR capital income']
+inc_lab = df_trnc['Total Labor Income'].reset_index(drop=True)
+inc_cap = df_trnc['Total Capital Income'].reset_index(drop=True)
+etr_data = df_trnc['Effective Tax Rate'].reset_index(drop=True)
+mtrx_data = df_trnc['MTR Labor Income'].reset_index(drop=True)
+mtry_data = df_trnc['MTR capital income'].reset_index(drop=True)
 scatter_source = ColumnDataSource(data=dict(x=inc_lab, y=inc_cap, z=etr_data))
 etr_source = ColumnDataSource(data=dict(z=etr_data))
 mtrx_source = ColumnDataSource(data=dict(z=mtrx_data))
@@ -73,6 +74,8 @@ xpos = xpos.flatten()
 ypos = ypos.flatten()
 dz = hist.flatten()
 bar_source = ColumnDataSource(data=dict(x=xpos, y=ypos, z=dz))
+
+# import pdb; pdb.set_trace()
 
 # scatter 3D
 scatter = Scatter3d(x="x", y="y", z="z", color="color",

@@ -21,27 +21,33 @@ OPTIONS =
   xBarWidth: 7500
   yBarWidth: 7500
 
-export class Surface3dView extends LayoutDOMView
+export class Bar3dView extends LayoutDOMView
 
   initialize: (options) ->
     super(options)
 
     url = "https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.js"
 
-    script = document.createElement('script')
-    script.src = url
-    script.async = false
-    script.onreadystatechange = script.onload = () => @_init()
-    document.querySelector("head").appendChild(script)
+    window.visjsInits ||= []
+    window.visjsInits.push(() => @_init())
+
+    visjsCdnTag = document.querySelector("script[src=\"#{url}\"]")
+
+    unless visjsCdnTag?
+      script = document.createElement('script')
+      script.src = url
+      script.async = false
+      script.onreadystatechange = script.onload = () =>
+        for initFunction in window.visjsInits
+          initFunction()
+      document.querySelector("head").appendChild(script)
 
   _init: () ->
-    @_graph = new vis.Graph3d(@el, @get_data(), OPTIONS)
+    @_bar_graph = new vis.Graph3d(@el, @get_data(), OPTIONS)
 
     @connect(@model.data_source.change, () =>
-        @_graph.setData(@get_data())
+        @_bar_graph.setData(@get_data())
     )
-
-    window.surface_graph = @_graph
 
   get_data: () ->
     data = new vis.DataSet()
@@ -56,7 +62,7 @@ export class Surface3dView extends LayoutDOMView
 
 export class Bar3d extends LayoutDOM
 
-  default_view: Surface3dView
+  default_view: Bar3dView
 
   type: "Bar3d"
 
