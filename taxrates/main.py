@@ -36,10 +36,8 @@ class Bar3d(LayoutDOM):
 # Read in the data and clean it
 start_yr = 2017
 end_yr = 2026
-micro_dict_base = pickle.load(open('data/micro_dict_base.pkl', 'rb'))
-micro_dict_pol = pickle.load(open('data/micro_dict_pol.pkl', 'rb'))
-microDataDict_base_clean = clean_data(micro_dict_base, start_yr, end_yr)
-microDataDict_pol_clean = clean_data(micro_dict_pol, start_yr, end_yr)
+microDataDict_base_clean = pickle.load(open('data/micro_dict_base_clean.pkl', 'rb'))
+microDataDict_pol_clean = pickle.load(open('data/micro_dict_pol_clean.pkl', 'rb'))
 
 # example of 3D plots with one year and one age
 year = int(2017)
