@@ -34,35 +34,53 @@ class Bar3d(LayoutDOM):
 
 # DATA
 # Read in the data and clean it
-start_yr = 2017
-end_yr = 2026
 microDataDict_base_clean = pickle.load(open('data/micro_dict_base_clean.pkl', 'rb'))
 microDataDict_pol_clean = pickle.load(open('data/micro_dict_pol_clean.pkl', 'rb'))
 
 # example of 3D plots with one year and one age
 year = int(2017)
 age = 42
-df = microDataDict_base_clean[str(year)]
-df = df[df['Age'] == age]
+base_df = microDataDict_base_clean[str(year)]
+base_df = base_df[base_df['Age'] == age]
 
-# Truncate the data and prepare for scatter plot
-df_trnc = df[(df['Total Labor Income'] > 5) &
-             (df['Total Labor Income'] < 500000) &
-             (df['Total Capital Income'] > 5) &
-             (df['Total Capital Income'] < 500000)]
-inc_lab = df_trnc['Total Labor Income'].reset_index(drop=True)
-inc_cap = df_trnc['Total Capital Income'].reset_index(drop=True)
-etr_data = df_trnc['Effective Tax Rate'].reset_index(drop=True)
-mtrx_data = df_trnc['MTR Labor Income'].reset_index(drop=True)
-mtry_data = df_trnc['MTR capital income'].reset_index(drop=True)
-scatter_source = ColumnDataSource(data=dict(x=inc_lab, y=inc_cap, z=etr_data))
-etr_source = ColumnDataSource(data=dict(z=etr_data))
-mtrx_source = ColumnDataSource(data=dict(z=mtrx_data))
-mtry_source = ColumnDataSource(data=dict(z=mtry_data))
+# Truncate the data and prepare for base scatter plot
+base_df_trnc = base_df[(base_df['Total Labor Income'] > 5) &
+             (base_df['Total Labor Income'] < 500000) &
+             (base_df['Total Capital Income'] > 5) &
+             (base_df['Total Capital Income'] < 500000)]
+base_inc_lab = base_df_trnc['Total Labor Income'].reset_index(drop=True)
+base_inc_cap = base_df_trnc['Total Capital Income'].reset_index(drop=True)
+base_etr_data = base_df_trnc['Effective Tax Rate'].reset_index(drop=True)
+base_mtrx_data = base_df_trnc['MTR Labor Income'].reset_index(drop=True)
+base_mtry_data = base_df_trnc['MTR capital income'].reset_index(drop=True)
+
+# Truncate the data and prepare for pol scatter plot
+pol_df = microDataDict_pol_clean[str(year)]
+pol_df = pol_df[pol_df['Age'] == age]
+
+pol_df_trnc = pol_df[(pol_df['Total Labor Income'] > 5) &
+             (pol_df['Total Labor Income'] < 500000) &
+             (pol_df['Total Capital Income'] > 5) &
+             (pol_df['Total Capital Income'] < 500000)]
+pol_etr_data = pol_df_trnc['Effective Tax Rate'].reset_index(drop=True)
+pol_mtrx_data = pol_df_trnc['MTR Labor Income'].reset_index(drop=True)
+pol_mtry_data = pol_df_trnc['MTR capital income'].reset_index(drop=True)
+
+# prepare data for change scatter plot
+change_etr_data = pol_etr_data - base_etr_data
+change_mtrx_data = pol_mtrx_data - base_mtrx_data
+change_mtry_data = pol_mtry_data - base_mtry_data
+
+
+scatter_source = ColumnDataSource(data=dict(x=base_inc_lab, y=base_inc_cap,
+                                            z=base_etr_data))
+etr_source = ColumnDataSource(data=dict(z_base=base_etr_data, z_pol=pol_etr_data, z_change=change_etr_data))
+mtrx_source = ColumnDataSource(data=dict(z_base=base_mtrx_data, z_pol=pol_mtrx_data, z_change=change_mtrx_data))
+mtry_source = ColumnDataSource(data=dict(z_base=base_mtry_data, z_pol=pol_mtry_data, z_change=change_mtry_data))
 
 # Prepare data for bar plot
 bin_num = int(30)
-hist, xedges, yedges = np.histogram2d(inc_lab, inc_cap,
+hist, xedges, yedges = np.histogram2d(base_inc_lab, base_inc_cap,
                                       bins=bin_num)
 hist = hist / hist.sum()
 x_midp = xedges[:-1] + 0.5 * (xedges[1] - xedges[0])
@@ -83,19 +101,25 @@ scatter = Scatter3d(x="x", y="y", z="z", color="color",
 bar = Bar3d(x="x", y="y", z="z", color="color", data_source=bar_source,
             width=800, height=370)
 
-# create buttons/callback for scatter 3D
+# create callback for tax type/state of scatter plot
 scatter_button_callback = CustomJS(args=dict(scatter_source=scatter_source,
                                              etr_source=etr_source,
                                              mtrx_source=mtrx_source,
                                              mtry_source=mtry_source),
                                    code=SCATTER_BUTTON_CALLBACK_SCRIPT)
-scatter_buttons = RadioButtonGroup(labels=['ETR', 'MTR(x)', 'MTR(y)'],
-                                   active=0, callback=scatter_button_callback)
-scatter_button_callback.args['scatter_buttons'] = scatter_buttons
+# tax type buttons
+tax_buttons = RadioButtonGroup(labels=['ETR', 'MTR(x)', 'MTR(y)'],
+                               active=0, callback=scatter_button_callback)
+scatter_button_callback.args['tax_buttons'] = tax_buttons
+
+# state buttons
+state_buttons = RadioButtonGroup(labels=['Base', 'Policy', 'Change'],
+                                 active=0, callback=scatter_button_callback)
+scatter_button_callback.args['state_buttons'] = state_buttons
 
 # create layout and show!
 column_3d = column(scatter, bar)
-column_controls = column(scatter_buttons)
+column_controls = column(tax_buttons, state_buttons)
 layout = gridplot(
     children=[[column_3d, column_controls]],
     toolbar_location=None
