@@ -6,7 +6,6 @@ from bokeh.models.widgets import RadioButtonGroup, Div
 from bokeh.embed import components
 from bokeh.resources import CDN
 
-from txrates import clean_data
 import pickle
 import numpy as np
 import pandas as pd
@@ -14,8 +13,10 @@ import sys
 
 if 'show' in sys.argv:
     from callbacks.controls_callback_script import CONTROLS_CALLBACK_SCRIPT
+    from txrates import clean_data
 else:
     from taxrates.callbacks.controls_callback_script import CONTROLS_CALLBACK_SCRIPT
+    from taxrates.txrates import clean_data
 
 
 class Scatter3d(LayoutDOM):
