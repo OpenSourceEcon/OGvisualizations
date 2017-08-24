@@ -13,11 +13,11 @@ import os
 import pickle
 import numpy as np
 import pandas as pd
-import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
+# import matplotlib
+# import matplotlib.pyplot as plt
+# from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+# from mpl_toolkits.mplot3d import Axes3D
+# from matplotlib import cm
 
 '''
 ------------------------------------------------------------------------
@@ -157,160 +157,160 @@ def clean_data(microDataDict, beg_yr, end_yr):
     return microDataDict_clean
 
 
-def gen_3Dscatters_hist(df, s, t):
-    '''
-    --------------------------------------------------------------------
-    Create 3-D scatterplots and corresponding 3D histogram of ETR, MTRx,
-    and MTRy as functions of labor income and capital income with
-    truncated data in the income dimension
-    --------------------------------------------------------------------
-    INPUTS:
-    df         = (N1, 11) DataFrame, 11 variables with N observations
-    s          = integer >= 21, age of individual
-    t          = integer >= 2016, year of analysis
-
-    OTHER FUNCTIONS AND FILES CALLED BY THIS FUNCTION: None
-
-    OBJECTS CREATED WITHIN FUNCTION:
-    cur_path    = string, path name of current directory
-    output_fldr = string, folder in current path to save files
-    output_dir  = string, total path of images directory
-    df_trnc     = (N2 x 6) DataFrame, truncated data for 3D graph
-    inc_lab     = (N2 x 1) vector, total labor income for 3D graph
-    inc_cap     = (N2 x 1) vector, total capital income for 3D graph
-    etr_data    = (N2 x 1) vector, effective tax rate data
-    mtrx_data   = (N2 x 1) vector, marginal tax rate of labor income
-                  data
-    mtry_data   = (N2 x 1) vector, marginal tax rate of capital income
-                  data
-    filename    = string, name of image file
-    fullpath    = string, full path of file
-    bin_num     = integer >= 2, number of bins along each axis for 3D
-                  histogram
-    hist        = (bin_num, bin_num) matrix, bin percentages
-    xedges      = (bin_num+1,) vector, bin edge values in x-dimension
-    yedges      = (bin_num+1,) vector, bin edge values in y-dimension
-    x_midp      = (bin_num,) vector, midpoints of bins in x-dimension
-    y_midp      = (bin_num,) vector, midpoints of bins in y-dimension
-    elements    = integer, total number of 3D histogram bins
-    xpos        = (bin_num * bin_num) vector, x-coordinates of each bin
-    ypos        = (bin_num * bin_num) vector, y-coordinates of each bin
-    zpos        = (bin_num * bin_num) vector, zeros or z-coordinates of
-                  origin of each bin
-    dx          = (bin_num,) vector, x-width of each bin
-    dy          = (bin_num,) vector, y-width of each bin
-    dz          = (bin_num * bin_num) vector, height of each bin
-
-    FILES SAVED BY THIS FUNCTION:
-        output_dir/ETR_Age_[age]_Year_[year]_data.png
-        output_dir/MTRx_Age_[age]_Year_[year]_data.png
-        output_dir/MTRy_Age_[age]_Year_[year]_data.png
-        output_dir/Hist_Age_[age]_Year_[year].png
-
-    RETURNS: None
-    --------------------------------------------------------------------
-    '''
-    # Create directory if images directory does not already exist
-    cur_path = os.path.split(os.path.abspath(__file__))[0]
-    output_fldr = 'images'
-    output_dir = os.path.join(cur_path, output_fldr)
-    if not os.access(output_dir, os.F_OK):
-        os.makedirs(output_dir)
-
-    # Truncate the data
-    df_trnc = df[(df['Total Labor Income'] > 5) &
-                 (df['Total Labor Income'] < 500000) &
-                 (df['Total Capital Income'] > 5) &
-                 (df['Total Capital Income'] < 500000)]
-    inc_lab = df_trnc['Total Labor Income']
-    inc_cap = df_trnc['Total Capital Income']
-    etr_data = df_trnc['Effective Tax Rate']
-    mtrx_data = df_trnc['MTR Labor Income']
-    mtry_data = df_trnc['MTR capital income']
-
-    # Plot 3D scatterplot of ETR data
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(inc_lab, inc_cap, etr_data, c='r', marker='o')
-    ax.set_xlabel('Total Labor Income')
-    ax.set_ylabel('Total Capital Income')
-    ax.set_zlabel('Effective Tax Rate')
-    plt.title('ETR, Lab. Inc., and Cap. Inc., Age=' + str(s) +
-              ', Year=' + str(t))
-    filename = ('ETR_Age_' + str(s) + '_Year_' + str(t) + '_data.png')
-    fullpath = os.path.join(output_dir, filename)
-    fig.savefig(fullpath, bbox_inches='tight')
-    plt.close()
-
-    # Plot 3D histogram for all data
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    bin_num = int(30)
-    hist, xedges, yedges = np.histogram2d(inc_lab, inc_cap,
-                                          bins=bin_num)
-    hist = hist / hist.sum()
-    x_midp = xedges[:-1] + 0.5 * (xedges[1] - xedges[0])
-    y_midp = yedges[:-1] + 0.5 * (yedges[1] - yedges[0])
-    elements = (len(xedges) - 1) * (len(yedges) - 1)
-    ypos, xpos = np.meshgrid(y_midp, x_midp)
-    xpos = xpos.flatten()
-    ypos = ypos.flatten()
-    zpos = np.zeros(elements)
-    dx = (xedges[1] - xedges[0]) * np.ones_like(bin_num)
-    dy = (yedges[1] - yedges[0]) * np.ones_like(bin_num)
-    dz = hist.flatten()
-    ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color='b', zsort='average')
-    ax.set_xlabel('Total Labor Income')
-    ax.set_ylabel('Total Capital Income')
-    ax.set_zlabel('Percent of obs.')
-    plt.title('Histogram by lab. inc., and cap. inc., Age=' + str(s) +
-              ', Year=' + str(t))
-    filename = ('Hist_Age_' + str(s) + '_Year_' + str(t) + '.png')
-    fullpath = os.path.join(output_dir, filename)
-    fig.savefig(fullpath, bbox_inches='tight')
-    plt.close()
-
-    # Plot 3D scatterplot of MTRx data
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(inc_lab, inc_cap, mtrx_data, c='r', marker='o')
-    ax.set_xlabel('Total Labor Income')
-    ax.set_ylabel('Total Capital Income')
-    ax.set_zlabel('Marginal Tax Rate, Labor Inc.)')
-    plt.title('MTR Labor Income, Lab. Inc., and Cap. Inc., Age=' +
-              str(s) + ", Year=" + str(t))
-    filename = ('MTRx_Age_' + str(s) + '_Year_' + str(t) + '_data.png')
-    fullpath = os.path.join(output_dir, filename)
-    fig.savefig(fullpath, bbox_inches='tight')
-    plt.close()
-
-    # Plot 3D scatterplot of MTRy data
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(inc_lab, inc_cap, mtry_data, c='r', marker='o')
-    ax.set_xlabel('Total Labor Income')
-    ax.set_ylabel('Total Capital Income')
-    ax.set_zlabel('Marginal Tax Rate (Capital Inc.)')
-    plt.title('MTR Capital Income, Cap. Inc., and Cap. Inc., Age=' +
-              str(s) + ', Year=' + str(t))
-    filename = ('MTRy_Age_' + str(s) + '_Year_' + str(t) + '_data.png')
-    fullpath = os.path.join(output_dir, filename)
-    fig.savefig(fullpath, bbox_inches='tight')
-    plt.close()
-
-
-# Read in the data and clean it
-start_yr = 2017
-end_yr = 2026
-micro_dict_base = pickle.load(open('data/micro_dict_base.pkl', 'rb'))
-micro_dict_pol = pickle.load(open('data/micro_dict_pol.pkl', 'rb'))
-microDataDict_base_clean = clean_data(micro_dict_base, start_yr, end_yr)
-microDataDict_pol_clean = clean_data(micro_dict_pol, start_yr, end_yr)
-
-# How to generate three 3D scatter plots (ETR, MTRx, MTRy) and one
-# population histogram for a given year and age
-year = int(2017)
-age = 42
-df = microDataDict_base_clean[str(year)]
-df = df[df['Age'] == age]
-gen_3Dscatters_hist(df, age, year)
+# def gen_3Dscatters_hist(df, s, t):
+#     '''
+#     --------------------------------------------------------------------
+#     Create 3-D scatterplots and corresponding 3D histogram of ETR, MTRx,
+#     and MTRy as functions of labor income and capital income with
+#     truncated data in the income dimension
+#     --------------------------------------------------------------------
+#     INPUTS:
+#     df         = (N1, 11) DataFrame, 11 variables with N observations
+#     s          = integer >= 21, age of individual
+#     t          = integer >= 2016, year of analysis
+#
+#     OTHER FUNCTIONS AND FILES CALLED BY THIS FUNCTION: None
+#
+#     OBJECTS CREATED WITHIN FUNCTION:
+#     cur_path    = string, path name of current directory
+#     output_fldr = string, folder in current path to save files
+#     output_dir  = string, total path of images directory
+#     df_trnc     = (N2 x 6) DataFrame, truncated data for 3D graph
+#     inc_lab     = (N2 x 1) vector, total labor income for 3D graph
+#     inc_cap     = (N2 x 1) vector, total capital income for 3D graph
+#     etr_data    = (N2 x 1) vector, effective tax rate data
+#     mtrx_data   = (N2 x 1) vector, marginal tax rate of labor income
+#                   data
+#     mtry_data   = (N2 x 1) vector, marginal tax rate of capital income
+#                   data
+#     filename    = string, name of image file
+#     fullpath    = string, full path of file
+#     bin_num     = integer >= 2, number of bins along each axis for 3D
+#                   histogram
+#     hist        = (bin_num, bin_num) matrix, bin percentages
+#     xedges      = (bin_num+1,) vector, bin edge values in x-dimension
+#     yedges      = (bin_num+1,) vector, bin edge values in y-dimension
+#     x_midp      = (bin_num,) vector, midpoints of bins in x-dimension
+#     y_midp      = (bin_num,) vector, midpoints of bins in y-dimension
+#     elements    = integer, total number of 3D histogram bins
+#     xpos        = (bin_num * bin_num) vector, x-coordinates of each bin
+#     ypos        = (bin_num * bin_num) vector, y-coordinates of each bin
+#     zpos        = (bin_num * bin_num) vector, zeros or z-coordinates of
+#                   origin of each bin
+#     dx          = (bin_num,) vector, x-width of each bin
+#     dy          = (bin_num,) vector, y-width of each bin
+#     dz          = (bin_num * bin_num) vector, height of each bin
+#
+#     FILES SAVED BY THIS FUNCTION:
+#         output_dir/ETR_Age_[age]_Year_[year]_data.png
+#         output_dir/MTRx_Age_[age]_Year_[year]_data.png
+#         output_dir/MTRy_Age_[age]_Year_[year]_data.png
+#         output_dir/Hist_Age_[age]_Year_[year].png
+#
+#     RETURNS: None
+#     --------------------------------------------------------------------
+#     '''
+#     # Create directory if images directory does not already exist
+#     cur_path = os.path.split(os.path.abspath(__file__))[0]
+#     output_fldr = 'images'
+#     output_dir = os.path.join(cur_path, output_fldr)
+#     if not os.access(output_dir, os.F_OK):
+#         os.makedirs(output_dir)
+#
+#     # Truncate the data
+#     df_trnc = df[(df['Total Labor Income'] > 5) &
+#                  (df['Total Labor Income'] < 500000) &
+#                  (df['Total Capital Income'] > 5) &
+#                  (df['Total Capital Income'] < 500000)]
+#     inc_lab = df_trnc['Total Labor Income']
+#     inc_cap = df_trnc['Total Capital Income']
+#     etr_data = df_trnc['Effective Tax Rate']
+#     mtrx_data = df_trnc['MTR Labor Income']
+#     mtry_data = df_trnc['MTR capital income']
+#
+#     # Plot 3D scatterplot of ETR data
+#     fig = plt.figure()
+#     ax = fig.add_subplot(111, projection='3d')
+#     ax.scatter(inc_lab, inc_cap, etr_data, c='r', marker='o')
+#     ax.set_xlabel('Total Labor Income')
+#     ax.set_ylabel('Total Capital Income')
+#     ax.set_zlabel('Effective Tax Rate')
+#     plt.title('ETR, Lab. Inc., and Cap. Inc., Age=' + str(s) +
+#               ', Year=' + str(t))
+#     filename = ('ETR_Age_' + str(s) + '_Year_' + str(t) + '_data.png')
+#     fullpath = os.path.join(output_dir, filename)
+#     fig.savefig(fullpath, bbox_inches='tight')
+#     plt.close()
+#
+#     # Plot 3D histogram for all data
+#     fig = plt.figure()
+#     ax = fig.add_subplot(111, projection='3d')
+#     bin_num = int(30)
+#     hist, xedges, yedges = np.histogram2d(inc_lab, inc_cap,
+#                                           bins=bin_num)
+#     hist = hist / hist.sum()
+#     x_midp = xedges[:-1] + 0.5 * (xedges[1] - xedges[0])
+#     y_midp = yedges[:-1] + 0.5 * (yedges[1] - yedges[0])
+#     elements = (len(xedges) - 1) * (len(yedges) - 1)
+#     ypos, xpos = np.meshgrid(y_midp, x_midp)
+#     xpos = xpos.flatten()
+#     ypos = ypos.flatten()
+#     zpos = np.zeros(elements)
+#     dx = (xedges[1] - xedges[0]) * np.ones_like(bin_num)
+#     dy = (yedges[1] - yedges[0]) * np.ones_like(bin_num)
+#     dz = hist.flatten()
+#     ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color='b', zsort='average')
+#     ax.set_xlabel('Total Labor Income')
+#     ax.set_ylabel('Total Capital Income')
+#     ax.set_zlabel('Percent of obs.')
+#     plt.title('Histogram by lab. inc., and cap. inc., Age=' + str(s) +
+#               ', Year=' + str(t))
+#     filename = ('Hist_Age_' + str(s) + '_Year_' + str(t) + '.png')
+#     fullpath = os.path.join(output_dir, filename)
+#     fig.savefig(fullpath, bbox_inches='tight')
+#     plt.close()
+#
+#     # Plot 3D scatterplot of MTRx data
+#     fig = plt.figure()
+#     ax = fig.add_subplot(111, projection='3d')
+#     ax.scatter(inc_lab, inc_cap, mtrx_data, c='r', marker='o')
+#     ax.set_xlabel('Total Labor Income')
+#     ax.set_ylabel('Total Capital Income')
+#     ax.set_zlabel('Marginal Tax Rate, Labor Inc.)')
+#     plt.title('MTR Labor Income, Lab. Inc., and Cap. Inc., Age=' +
+#               str(s) + ", Year=" + str(t))
+#     filename = ('MTRx_Age_' + str(s) + '_Year_' + str(t) + '_data.png')
+#     fullpath = os.path.join(output_dir, filename)
+#     fig.savefig(fullpath, bbox_inches='tight')
+#     plt.close()
+#
+#     # Plot 3D scatterplot of MTRy data
+#     fig = plt.figure()
+#     ax = fig.add_subplot(111, projection='3d')
+#     ax.scatter(inc_lab, inc_cap, mtry_data, c='r', marker='o')
+#     ax.set_xlabel('Total Labor Income')
+#     ax.set_ylabel('Total Capital Income')
+#     ax.set_zlabel('Marginal Tax Rate (Capital Inc.)')
+#     plt.title('MTR Capital Income, Cap. Inc., and Cap. Inc., Age=' +
+#               str(s) + ', Year=' + str(t))
+#     filename = ('MTRy_Age_' + str(s) + '_Year_' + str(t) + '_data.png')
+#     fullpath = os.path.join(output_dir, filename)
+#     fig.savefig(fullpath, bbox_inches='tight')
+#     plt.close()
+#
+#
+# # Read in the data and clean it
+# start_yr = 2017
+# end_yr = 2026
+# micro_dict_base = pickle.load(open('data/micro_dict_base.pkl', 'rb'))
+# micro_dict_pol = pickle.load(open('data/micro_dict_pol.pkl', 'rb'))
+# microDataDict_base_clean = clean_data(micro_dict_base, start_yr, end_yr)
+# microDataDict_pol_clean = clean_data(micro_dict_pol, start_yr, end_yr)
+#
+# # How to generate three 3D scatter plots (ETR, MTRx, MTRy) and one
+# # population histogram for a given year and age
+# year = int(2017)
+# age = 42
+# df = microDataDict_base_clean[str(year)]
+# df = df[df['Age'] == age]
+# gen_3Dscatters_hist(df, age, year)
