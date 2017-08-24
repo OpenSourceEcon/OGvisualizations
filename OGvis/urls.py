@@ -21,4 +21,5 @@ from . import views
 app_name = 'OGvis'
 urlpatterns = [
     url(r'surf3Dtime', views.vis),
+    url(r'taxrates', views.tax),
 ]

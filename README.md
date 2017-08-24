@@ -5,3 +5,8 @@ Visualizations from large-scale overlapping generations model
 * Clone repository
 * `pip install -r requirements.txt`
 * `python surf3Dtime/main.py show`
+
+### How to view taxrates visualization:
+* Clone repository
+* `pip install -r requirements.txt`
+* `python taxrates/main.py show`
