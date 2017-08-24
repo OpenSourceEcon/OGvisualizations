@@ -15,7 +15,7 @@ import sys
 if 'show' in sys.argv:
     from callbacks.controls_callback_script import CONTROLS_CALLBACK_SCRIPT
 else:
-    from surf3Dtime.callbacks.controls_callback_script import CONTROLS_CALLBACK_SCRIPT
+    from taxrates.callbacks.controls_callback_script import CONTROLS_CALLBACK_SCRIPT
 
 
 class Scatter3d(LayoutDOM):
@@ -54,9 +54,9 @@ base_df = base_df[base_df['Age'] == age]
 
 # Truncate the data and prepare for base scatter plot
 base_df_trnc = base_df[(base_df['Total Labor Income'] > 5) &
-             (base_df['Total Labor Income'] < 500000) &
-             (base_df['Total Capital Income'] > 5) &
-             (base_df['Total Capital Income'] < 500000)]
+                       (base_df['Total Labor Income'] < 500000) &
+                       (base_df['Total Capital Income'] > 5) &
+                       (base_df['Total Capital Income'] < 500000)]
 base_inc_lab = base_df_trnc['Total Labor Income'].reset_index(drop=True)
 base_inc_cap = base_df_trnc['Total Capital Income'].reset_index(drop=True)
 base_etr_data = base_df_trnc['Effective Tax Rate'].reset_index(drop=True)
@@ -122,7 +122,7 @@ tax_buttons = RadioButtonGroup(labels=['ETR', 'MTR(x)', 'MTR(y)'],
 controls_callback.args['tax_buttons'] = tax_buttons
 
 # state buttons
-state_buttons = RadioButtonGroup(labels=['Base', 'Policy', 'Change'],
+state_buttons = RadioButtonGroup(labels=['Base', 'Reform', 'Change'],
                                  active=0, callback=controls_callback)
 controls_callback.args['state_buttons'] = state_buttons
 
@@ -152,9 +152,15 @@ controls_callback.args['age_slider'] = age_slider
 
 space_div = Div(width=400, height=150)
 
+scatter_title = Div(text="""<center><b>Tax Rate Title</b></center>""",
+                    width=600)
+
+bar_title = Div(text="""<center><b>Population Histogram</b></center>""",
+                width=600)
+
 
 # create layout and show!
-column_3d = column(scatter, bar)
+column_3d = column(scatter_title, scatter, bar_title, bar)
 column_controls = column(tax_buttons, state_buttons, space_div,
                          year_slider, age_slider, x_slider, y_slider)
 layout = gridplot(

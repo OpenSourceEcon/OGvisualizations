@@ -20,7 +20,7 @@ window.scatter_graph.setOptions({
 })
 
 var indexesToRemoveAge = age_data.reduce(function(currentIndexes, value, index) {
-    if (value > age_range[1] || value < age_range[0]) {
+    if (value >= age_range[1] || value < age_range[0]) {
         currentIndexes.push(index);
     }
 
@@ -28,7 +28,7 @@ var indexesToRemoveAge = age_data.reduce(function(currentIndexes, value, index) 
 }, []);
 
 var indexesToRemoveXaxis = xaxis_data.reduce(function(currentIndexes, value, index) {
-    if (value > x_range[1] || value < x_range[0]) {
+    if (value >= x_range[1] || value < x_range[0]) {
         currentIndexes.push(index);
     }
 
@@ -36,7 +36,7 @@ var indexesToRemoveXaxis = xaxis_data.reduce(function(currentIndexes, value, ind
 }, []);
 
 var indexesToRemoveYaxis = yaxis_data.reduce(function(currentIndexes, value, index) {
-    if (value > y_range[1] || value < y_range[0]) {
+    if (value >= y_range[1] || value < y_range[0]) {
         currentIndexes.push(index);
     }
 
@@ -118,34 +118,43 @@ if (state == '2') {
     indexesToRemoveAge.forEach(function(index) {
         xdata[index] = null;
         ydata[index] = null;
-        etr_zdata[index] = null;
-        mtrx_zdata[index] = null;
-        mtry_zdata[index] = null;
+        base_etr_zdata[index] = null;
+        base_mtrx_zdata[index] = null;
+        base_mtry_zdata[index] = null;
+        pol_etr_zdata[index] = null;
+        pol_mtrx_zdata[index] = null;
+        pol_mtry_zdata[index] = null;
     });
 
     indexesToRemoveXaxis.forEach(function(index) {
         xdata[index] = null;
         ydata[index] = null;
-        etr_zdata[index] = null;
-        mtrx_zdata[index] = null;
-        mtry_zdata[index] = null;
+        base_etr_zdata[index] = null;
+        base_mtrx_zdata[index] = null;
+        base_mtry_zdata[index] = null;
+        pol_etr_zdata[index] = null;
+        pol_mtrx_zdata[index] = null;
+        pol_mtry_zdata[index] = null;
     });
 
     indexesToRemoveYaxis.forEach(function(index) {
         xdata[index] = null;
         ydata[index] = null;
-        etr_zdata[index] = null;
-        mtrx_zdata[index] = null;
-        mtry_zdata[index] = null;
+        base_etr_zdata[index] = null;
+        base_mtrx_zdata[index] = null;
+        base_mtry_zdata[index] = null;
+        pol_etr_zdata[index] = null;
+        pol_mtrx_zdata[index] = null;
+        pol_mtry_zdata[index] = null;
     });
 
-    var etr_zdata = pol_etr_zdata.map( function (item, index) {
+    var etr_zdata = pol_etr_zdata.map(function (item, index) {
         return item - base_etr_zdata[index];
     })
-    var mtrx_zdata = pol_mtrx_zdata.map( function (item, index) {
+    var mtrx_zdata = pol_mtrx_zdata.map(function (item, index) {
         return item - base_mtrx_zdata[index];
     })
-    var mtry_zdata = pol_mtry_zdata.map( function (item, index) {
+    var mtry_zdata = pol_mtry_zdata.map(function (item, index) {
         return item - base_mtry_zdata[index];
     })
 }
@@ -155,6 +164,9 @@ if (tax == '0') {
         zLabel: 'Effective Tax Rate'
     })
 
+    scatter_source_dict['x'] = new Array(xdata.length).fill(null);
+    scatter_source_dict['y'] = new Array(xdata.length).fill(null);
+    scatter_source_dict['z'] = new Array(xdata.length).fill(null);
     for (i = 0; i < etr_zdata.length; i++) {
         scatter_source_dict['x'][i] = xdata[i];
         scatter_source_dict['y'][i] = ydata[i];
@@ -168,6 +180,9 @@ if (tax == '1') {
         zLabel: 'Marginal Tax Rate (labor inc.)'
     })
 
+    scatter_source_dict['x'] = new Array(xdata.length).fill(null);
+    scatter_source_dict['y'] = new Array(xdata.length).fill(null);
+    scatter_source_dict['z'] = new Array(xdata.length).fill(null);
     for (i = 0; i < etr_zdata.length; i++) {
         scatter_source_dict['x'][i] = xdata[i];
         scatter_source_dict['y'][i] = ydata[i];
