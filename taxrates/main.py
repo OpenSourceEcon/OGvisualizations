@@ -43,8 +43,12 @@ class Bar3d(LayoutDOM):
 
 # DATA
 # Read in the data and clean it
-microDataDict_base_clean = pickle.load(open('data/micro_dict_base_clean.pkl', 'rb'))
-microDataDict_pol_clean = pickle.load(open('data/micro_dict_pol_clean.pkl', 'rb'))
+if 'show' in sys.argv:
+    microDataDict_base_clean = pickle.load(open('data/micro_dict_base_clean.pkl', 'rb'))
+    microDataDict_pol_clean = pickle.load(open('data/micro_dict_pol_clean.pkl', 'rb'))
+else:
+    microDataDict_base_clean = pickle.load(open('taxrates/data/micro_dict_base_clean.pkl', 'rb'))
+    microDataDict_pol_clean = pickle.load(open('taxrates/data/micro_dict_pol_clean.pkl', 'rb'))
 
 # CREATE INITIAL PLOTS
 # example of 3D plots with one year and one age
