@@ -1,13 +1,21 @@
 from bokeh.plotting import show
-from bokeh.models import ColumnDataSource, LayoutDOM, CustomJS
+from bokeh.models import ColumnDataSource, LayoutDOM, CustomJS, Slider, RangeSlider
 from bokeh.core.properties import Instance, String
 from bokeh.layouts import column, gridplot
-from bokeh.models.widgets import RadioButtonGroup
+from bokeh.models.widgets import RadioButtonGroup, Div
+from bokeh.embed import components
+from bokeh.resources import CDN
+
 from txrates import clean_data
-from callbacks.scatter_button_callback_script import SCATTER_BUTTON_CALLBACK_SCRIPT
 import pickle
 import numpy as np
 import pandas as pd
+import sys
+
+if 'show' in sys.argv:
+    from callbacks.controls_callback_script import CONTROLS_CALLBACK_SCRIPT
+else:
+    from surf3Dtime.callbacks.controls_callback_script import CONTROLS_CALLBACK_SCRIPT
 
 
 class Scatter3d(LayoutDOM):
@@ -37,6 +45,7 @@ class Bar3d(LayoutDOM):
 microDataDict_base_clean = pickle.load(open('data/micro_dict_base_clean.pkl', 'rb'))
 microDataDict_pol_clean = pickle.load(open('data/micro_dict_pol_clean.pkl', 'rb'))
 
+# CREATE INITIAL PLOTS
 # example of 3D plots with one year and one age
 year = int(2017)
 age = 42
@@ -51,32 +60,9 @@ base_df_trnc = base_df[(base_df['Total Labor Income'] > 5) &
 base_inc_lab = base_df_trnc['Total Labor Income'].reset_index(drop=True)
 base_inc_cap = base_df_trnc['Total Capital Income'].reset_index(drop=True)
 base_etr_data = base_df_trnc['Effective Tax Rate'].reset_index(drop=True)
-base_mtrx_data = base_df_trnc['MTR Labor Income'].reset_index(drop=True)
-base_mtry_data = base_df_trnc['MTR capital income'].reset_index(drop=True)
-
-# Truncate the data and prepare for pol scatter plot
-pol_df = microDataDict_pol_clean[str(year)]
-pol_df = pol_df[pol_df['Age'] == age]
-
-pol_df_trnc = pol_df[(pol_df['Total Labor Income'] > 5) &
-             (pol_df['Total Labor Income'] < 500000) &
-             (pol_df['Total Capital Income'] > 5) &
-             (pol_df['Total Capital Income'] < 500000)]
-pol_etr_data = pol_df_trnc['Effective Tax Rate'].reset_index(drop=True)
-pol_mtrx_data = pol_df_trnc['MTR Labor Income'].reset_index(drop=True)
-pol_mtry_data = pol_df_trnc['MTR capital income'].reset_index(drop=True)
-
-# prepare data for change scatter plot
-change_etr_data = pol_etr_data - base_etr_data
-change_mtrx_data = pol_mtrx_data - base_mtrx_data
-change_mtry_data = pol_mtry_data - base_mtry_data
-
 
 scatter_source = ColumnDataSource(data=dict(x=base_inc_lab, y=base_inc_cap,
                                             z=base_etr_data))
-etr_source = ColumnDataSource(data=dict(z_base=base_etr_data, z_pol=pol_etr_data, z_change=change_etr_data))
-mtrx_source = ColumnDataSource(data=dict(z_base=base_mtrx_data, z_pol=pol_mtrx_data, z_change=change_mtrx_data))
-mtry_source = ColumnDataSource(data=dict(z_base=base_mtry_data, z_pol=pol_mtry_data, z_change=change_mtry_data))
 
 # Prepare data for bar plot
 bin_num = int(30)
@@ -89,9 +75,8 @@ ypos, xpos = np.meshgrid(y_midp, x_midp)
 xpos = xpos.flatten()
 ypos = ypos.flatten()
 dz = hist.flatten()
-bar_source = ColumnDataSource(data=dict(x=xpos, y=ypos, z=dz))
 
-# import pdb; pdb.set_trace()
+bar_source = ColumnDataSource(data=dict(x=xpos, y=ypos, z=dz))
 
 # scatter 3D
 scatter = Scatter3d(x="x", y="y", z="z", color="color",
@@ -101,27 +86,85 @@ scatter = Scatter3d(x="x", y="y", z="z", color="color",
 bar = Bar3d(x="x", y="y", z="z", color="color", data_source=bar_source,
             width=800, height=370)
 
-# create callback for tax type/state of scatter plot
-scatter_button_callback = CustomJS(args=dict(scatter_source=scatter_source,
-                                             etr_source=etr_source,
-                                             mtrx_source=mtrx_source,
-                                             mtry_source=mtry_source),
-                                   code=SCATTER_BUTTON_CALLBACK_SCRIPT)
+source_dict = {}
+for i in range(2017, 2027):
+    source_dict['base_'+str(i)] = ColumnDataSource(data=microDataDict_base_clean[str(i)])
+    source_dict['pol_'+str(i)] = ColumnDataSource(data=microDataDict_pol_clean[str(i)])
+
+# create callback for all controls
+controls_callback = CustomJS(args=dict(base_2017=source_dict['base_2017'],
+                                       pol_2017=source_dict['pol_2017'],
+                                       base_2018=source_dict['base_2017'],
+                                       pol_2018=source_dict['base_2017'],
+                                       base_2019=source_dict['base_2017'],
+                                       pol_2019=source_dict['base_2017'],
+                                       base_2020=source_dict['base_2017'],
+                                       pol_2020=source_dict['base_2017'],
+                                       base_2021=source_dict['base_2017'],
+                                       pol_2021=source_dict['base_2017'],
+                                       base_2022=source_dict['base_2017'],
+                                       pol_2022=source_dict['base_2017'],
+                                       base_2023=source_dict['base_2017'],
+                                       pol_2023=source_dict['base_2017'],
+                                       base_2024=source_dict['base_2017'],
+                                       pol_2024=source_dict['base_2017'],
+                                       base_2025=source_dict['base_2017'],
+                                       pol_2025=source_dict['base_2017'],
+                                       base_2026=source_dict['base_2017'],
+                                       pol_2026=source_dict['base_2017'],
+                                       scatter_source=scatter_source,
+                                       bar_source=bar_source),
+                             code=CONTROLS_CALLBACK_SCRIPT)
+
 # tax type buttons
 tax_buttons = RadioButtonGroup(labels=['ETR', 'MTR(x)', 'MTR(y)'],
-                               active=0, callback=scatter_button_callback)
-scatter_button_callback.args['tax_buttons'] = tax_buttons
+                               active=0, callback=controls_callback)
+controls_callback.args['tax_buttons'] = tax_buttons
 
 # state buttons
 state_buttons = RadioButtonGroup(labels=['Base', 'Policy', 'Change'],
-                                 active=0, callback=scatter_button_callback)
-scatter_button_callback.args['state_buttons'] = state_buttons
+                                 active=0, callback=controls_callback)
+controls_callback.args['state_buttons'] = state_buttons
+
+# year slider
+year_slider = Slider(start=2017, end=2026, value=2017, step=1, title="Year",
+                     callback=controls_callback,
+                     callback_policy="mouseup")
+controls_callback.args['year_slider'] = year_slider
+
+# range slider x
+x_slider = RangeSlider(start=0, end=60000000, range=[5, 500000], step=10000,
+                       title='X-axis Range', callback=controls_callback,
+                       callback_policy="mouseup")
+controls_callback.args['x_slider'] = x_slider
+
+# range slider y
+y_slider = RangeSlider(start=0, end=60000000, range=[5, 500000], step=10000,
+                       title='Y-axis Range', callback=controls_callback,
+                       callback_policy="mouseup")
+controls_callback.args['y_slider'] = y_slider
+
+# range slider age
+age_slider = RangeSlider(start=10, end=85, range=[age, age+1], step=1,
+                         title='Age Range', callback=controls_callback,
+                         callback_policy="mouseup")
+controls_callback.args['age_slider'] = age_slider
+
+space_div = Div(width=400, height=150)
+
 
 # create layout and show!
 column_3d = column(scatter, bar)
-column_controls = column(tax_buttons, state_buttons)
+column_controls = column(tax_buttons, state_buttons, space_div,
+                         year_slider, age_slider, x_slider, y_slider)
 layout = gridplot(
     children=[[column_3d, column_controls]],
     toolbar_location=None
 )
-show(layout)
+
+js, div = components(layout)
+cdn_js = CDN.js_files[0]
+cdn_css = CDN.css_files[0]
+
+if 'show' in sys.argv:
+    show(layout)

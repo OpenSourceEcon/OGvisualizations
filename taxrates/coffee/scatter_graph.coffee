@@ -18,6 +18,8 @@ OPTIONS =
   xLabel: 'Total Labor Income'
   yLabel: 'Total Capital Income'
   zLabel: 'Effective Tax Rate'
+  xMin: 0
+  xMax: 500000
 
 export class Scatter3dView extends LayoutDOMView
 
