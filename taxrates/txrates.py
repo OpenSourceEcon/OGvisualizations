@@ -299,13 +299,19 @@ def clean_data(microDataDict, beg_yr, end_yr):
 #     plt.close()
 #
 #
-# # Read in the data and clean it
+# Read in the data and clean it
 # start_yr = 2017
 # end_yr = 2026
 # micro_dict_base = pickle.load(open('data/micro_dict_base.pkl', 'rb'))
 # micro_dict_pol = pickle.load(open('data/micro_dict_pol.pkl', 'rb'))
 # microDataDict_base_clean = clean_data(micro_dict_base, start_yr, end_yr)
 # microDataDict_pol_clean = clean_data(micro_dict_pol, start_yr, end_yr)
+#
+# with open('data/micro_dict_base_clean.pkl', 'wb') as handle:
+#     pickle.dump(microDataDict_base_clean, handle)
+#
+# with open('data/micro_dict_pol_clean.pkl', 'wb') as handle:
+#     pickle.dump(microDataDict_pol_clean, handle)
 #
 # # How to generate three 3D scatter plots (ETR, MTRx, MTRy) and one
 # # population histogram for a given year and age

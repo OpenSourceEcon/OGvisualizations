@@ -157,7 +157,7 @@ controls_callback.args['age_slider'] = age_slider
 
 space_div = Div(width=400, height=150)
 
-scatter_title = Div(text="""<center><b>Tax Rate Title</b></center>""",
+scatter_title = Div(text="""<center><b>Tax Rate Scatter Plot</b></center>""",
                     width=600)
 
 bar_title = Div(text="""<center><b>Population Histogram</b></center>""",
