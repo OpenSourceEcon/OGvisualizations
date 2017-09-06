@@ -12,6 +12,11 @@
   <script src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.7.min.js"></script>
   {% load static %}
   <link rel="stylesheet" type="text/css" href="{% static 'OGvis/style.css' %}">
+  <style>
+    .bk-root .bk-grid-column {
+      margin: 0 auto;
+    }
+  </style>
 </head>
 
 <html>
@@ -40,9 +45,9 @@
     </div>
   </nav>
 
-<h1 class="text-center"> Overlapping Generations Model Visualization </h1>
+<h1 class="text-center"> Marginal Effective Tax Rates </h1>
 
-<div class="text-center vis-div">
+<div>
 
   {{ div|safe }}
   {{ js|safe }}

@@ -34,3 +34,4 @@ dist/*
 .env
 micro*.pkl
 main.html
+simple_taxrates.html
