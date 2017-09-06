@@ -18,15 +18,13 @@ from bokeh.resources import CDN
 if 'show' in sys.argv:
     from styles import (PLOT_FORMATS, TITLE_FORMATS, RED, BLUE)
     from controls_callback_script import CONTROLS_CALLBACK_SCRIPT
-    # read in dataframes data
-    with open('gallery_data.json', 'r') as fp:
-        dataframes = json.load(fp)
 else:
     from bubbleplot.styles import (PLOT_FORMATS, TITLE_FORMATS, RED, BLUE)
     from bubbleplot.controls_callback_script import CONTROLS_CALLBACK_SCRIPT
-    # read in dataframes data
-    with open('bubbleplot/gallery_data.json', 'r') as fp:
-        dataframes = json.load(fp)
+
+# read in dataframes data
+with open('bubbleplot/gallery_data.json', 'r') as fp:
+    dataframes = json.load(fp)
 
 # convert asset dicts to pandas dataframes
 base_df = pd.DataFrame.from_dict(dataframes['base_output_by_asset'])
