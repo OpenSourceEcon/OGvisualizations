@@ -22,4 +22,5 @@ app_name = 'OGvis'
 urlpatterns = [
     url(r'surf3Dtime', views.vis),
     url(r'taxrates', views.tax),
+    url(r'bubbleplot', views.bubble),
 ]

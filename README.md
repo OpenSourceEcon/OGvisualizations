@@ -10,3 +10,8 @@ Visualizations from large-scale overlapping generations model
 * Clone repository
 * `pip install -r requirements.txt`
 * `python taxrates/main.py show`
+
+### How to view bubbleplot visualization:
+* Clone repository
+* `pip install -r requirements.txt`
+* `python bubbleplot/main.py show`

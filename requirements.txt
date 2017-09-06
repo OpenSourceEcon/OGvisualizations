@@ -1,4 +1,4 @@
-bokeh==0.12.6
+bokeh==0.12.7
 numpy==1.13.0
 dj-database-url==0.4.1
 Django==1.11.1
@@ -7,3 +7,4 @@ psycopg2==2.6.2
 whitenoise==3.2
 python-dotenv==0.6.2
 pandas==0.20.3
+django-lockdown
