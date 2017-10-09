@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'surf3Dtime', views.vis),
     url(r'taxrates', views.tax),
     url(r'bubbleplot', views.bubble),
+    url(r'increase_decrease', views.increase)
 ]

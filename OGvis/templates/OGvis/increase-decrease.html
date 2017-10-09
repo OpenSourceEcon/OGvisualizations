@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<head>
+  <title>Open Source Macroeconomic Laboratory</title>
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"
+    rel="stylesheet"/>
+  <link rel='stylesheet' href={{cdn_css|safe}} type="text/css"/>
+  <script type="text/javascript" src={{cdn_js|safe}}></script>
+  <link
+    href="https://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.9.min.css"
+    rel="stylesheet" type="text/css">
+  <script src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.9.min.js"></script>
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'OGvis/style.css' %}">
+  <style>
+    .bk-root .bk-grid-column {
+      margin: 0 auto;
+    }
+  </style>
+</head>
+
+<html>
+<body>
+
+  <nav class="navbar navbar-default og-navbar">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">
+          <img src="{% static 'shared/osm-icon.png' %}"/>
+        </a>
+      </div>
+
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+          <a class="navbar-brand" target="_blank" href="https://github.com/OpenSourceMacro/OGvisualizations">
+            <img src="{% static 'shared/github-icon.png'%}"/>
+          </a>
+        </li>
+        <li>
+          <a class="navbar-brand" target="_blank" href="https://twitter.com/OpenSourceMacro">
+            <img src="{% static 'shared/twitter-icon.png'%}"/>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+<h1 class="text-center"> Tax Increase vs. Tax Decrease </h1>
+
+<div>
+
+  {{ div|safe }}
+  {{ js|safe }}
+
+</div>
+
+ </body>
+ </html>

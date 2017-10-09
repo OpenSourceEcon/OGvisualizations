@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from surf3Dtime import main as main_surf3Dtime
 #from taxrates import main as main_taxrates
 from bubbleplot import main as main_bubbleplot
+from increase_decrease import main as main_increase
 from lockdown.decorators import lockdown
 
 from django.contrib.auth import authenticate
@@ -21,6 +22,15 @@ def bubble(request):
                'cdn_js': main_bubbleplot.cdn_js,
                'cdn_css': main_bubbleplot.cdn_css}
     return render(request, 'OGvis/bubbleplot.html', context=context)
+
+
+def increase(request):
+    context = {'div': main_increase.div, 'js': main_increase.js,
+               'cdn_js': main_increase.cdn_js,
+               'cdn_css': main_increase.cdn_css,
+               'widget_js': main_increase.widget_js,
+               'widget_css': main_increase.widget_css}
+    return render(request, 'OGvis/increase-decrease.html', context=context)
 
 
 @lockdown()
