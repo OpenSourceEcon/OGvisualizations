@@ -2,7 +2,6 @@ import pandas as pd
 from os import path
 import json
 import sys
-pd.options.mode.chained_assignment = None
 
 # importing Bokeh libraries
 from bokeh.plotting import figure, show
@@ -13,6 +12,7 @@ from bokeh.models import NumeralTickFormatter
 from bokeh.layouts import gridplot
 from bokeh.embed import components
 from bokeh.resources import CDN
+pd.options.mode.chained_assignment = None
 
 # import styles and callback
 if 'show' in sys.argv:

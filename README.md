@@ -15,3 +15,8 @@ Visualizations from large-scale overlapping generations model
 * Clone repository
 * `pip install -r requirements.txt`
 * `python bubbleplot/main.py show`
+
+### How to view increase_decrease visualization:
+* Clone repository
+* `pip install -r requirements.txt`
+* `python increase_decrease/main.py show`
